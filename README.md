@@ -1,8 +1,10 @@
 ## plugnpy
 
+A Simple Python Library for creating Opsview Opspack plugins. For information on what a Monitoring Plugin is, please read [What is a Monitoring Plugin?](https://github.com/opsview/Opsview-Integrations/blob/master/WHAT_IS_A_MONITORING_PLUGIN.md)
+
 ### Installing the Library
 
-For use with versions of Opsview below 6.1, Opsview Python's pip will need to be used to install this library as they do not ship with it pre-installed.
+For use with versions of Opsview below 6.1, Opsview Python's pip will need to be used to install this library, as they do not ship with it pre-installed.
 
 `/opt/opsview/python/bin/pip install <location of plugnpy-version.tar.gz>`
 
@@ -81,7 +83,6 @@ parser = plugnpy.Parser(description="Monitors Memory Utilisation",
 parser = plugnpy.Parser(description="Monitors Memory Utilisation")
 parser.set_copyright("Example Copyright 2017-2018")
 ```
-
 
 To use the parser, create an object of type plugnpy.Parser and use as you would normally use an ArgumentParser object.
 
