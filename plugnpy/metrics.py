@@ -85,8 +85,8 @@ class Metric(object):
     def convert_automatic_value(self, value):
         """Converts values with the right prefix for display"""
         for key in ('T', 'G', 'M', 'K'):
-            if 1 / DISPLAY_UNIT_FACTORS[key][self.display_unit_factor_type] <= value:
-                return value * DISPLAY_UNIT_FACTORS[key][self.display_unit_factor_type], '{0}{1}'.format(key, self.unit)
+            if 1 / DISPLAY_UNIT_FACTORS[key][self.display_unit_factor_type] <= float(value):
+                return float(value) * DISPLAY_UNIT_FACTORS[key][self.display_unit_factor_type], '{0}{1}'.format(key, self.unit)
         return value, self.unit
 
     def convert_threshold(self, value):

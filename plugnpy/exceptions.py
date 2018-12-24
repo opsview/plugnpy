@@ -25,3 +25,8 @@ class AssumedOK(Exception):
 class InvalidMetricThreshold(Exception):
     """To be thrown when you pass a metric threshold with wrong syntax"""
     pass
+
+
+class InvalidMetricName(Exception):
+    """To be thrown when you pass an invalid metric name."""
+    pass

@@ -4,6 +4,7 @@ Check class, contains Check Object that controls the check execution.
 
 from __future__ import print_function
 from metrics import Metric
+from exceptions import InvalidMetricName
 
 
 class Check(object):
@@ -35,6 +36,12 @@ class Check(object):
         display_in_perf -- whether or not to add this metric to the performance data
         display_in_summary -- whether or not to add this metric to the Summary
         """
+
+        if "'" in name:
+            raise InvalidMetricName("Metric names cannot contain \"'\".")
+        if "=" in name:
+            raise InvalidMetricName("Metric names cannot contain \"=\".")
+
         metric = Metric(name, value, unit, warning_threshold or '', critical_threshold or '', display_unit_factor_type,
                         display_format=msg_fmt, display_in_perf=display_in_perf, display_in_summary=display_in_summary,
                         display_name=display_name, convert_metric=convert_metric)
@@ -75,7 +82,7 @@ class Check(object):
         """Calculates the final check output and exit status, prints and exits with the appropriate code."""
         human_results = [str(metric) for metric in self.metrics if metric.display_in_summary]
         perf_results = ["{0}={1}{2}{3}{4}{5}{6}".format(
-            metric.name, metric.value, metric.unit,
+            "'{0}'".format(metric.name) if ' ' in metric.name else metric.name, metric.value, metric.unit,
             ';' if metric.warning_threshold or metric.critical_threshold else '', metric.warning_threshold,
             ';' if metric.warning_threshold or metric.critical_threshold else '', metric.critical_threshold
             ) for metric in self.metrics if metric.display_in_perf]
