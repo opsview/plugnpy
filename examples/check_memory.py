@@ -1,5 +1,5 @@
 #!/opt/opsview/python/bin/python
-
+/opsera.com/
 # Copyright (C) 2003-2018 Opsview Limited. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,7 +64,3 @@ if __name__ == "__main__":
         check.add_metric('swap_out', swap_usage.sout, 'B', '', '', convert_metric=True)
 
     check.final()
-
-check.add_metric('metric_name', metric_value, unit, warning_threshold, critical_threshold,
-                 display_name="Metric Name", msg_fmt="{name} at {value}{unit}",
-                 convert_metric=True)
