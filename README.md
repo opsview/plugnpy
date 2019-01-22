@@ -1,8 +1,15 @@
-## plugnpy
+# plugnpy
 
-A Simple Python Library for creating Opsview Opspack plugins. For information on what a Monitoring Plugin is, please read [What is a Monitoring Plugin?](https://github.com/opsview/Opsview-Integrations/blob/master/WHAT_IS_A_MONITORING_PLUGIN.md)
 
-### Installing the Library
+*A Simple Python Library for creating [Opsview Opspack plugins](https://github.com/opsview/Opsview-Integrations/blob/master/WHAT_IS_A_MONITORING_PLUGIN.md).*
+
+* **category**    Libraries
+* **copyright**   2018-2019 Opsview Ltd
+* **license**     Apache License Version 2.0 (see [LICENSE](LICENSE))
+* **link**        https://github.com/opsview/plugnpy
+
+
+## Installing the Library
 
 For use with versions of Opsview below 6.1, Opsview Python's pip will need to be used to install this library, as they do not ship with it pre-installed.
 
@@ -12,7 +19,36 @@ To install the library locally, download the release package and simply install 
 
 `pip install <location of plugnpy-version.tar.gz>`
 
-### Building the Library
+## Quick Start
+
+This project includes a Makefile that allows you to test and build the project in a Linux-compatible system with simple commands.
+
+To see all available options:
+```
+make help
+```
+
+To build a Conda development environment:  
+```
+make conda_dev
+. activate
+```
+
+To test inside a `conda_dev` environment using setuptools:  
+```
+make test
+```
+
+To build and test the project inside a Conda environment:  
+```
+make build
+```
+
+The coverage report is available at:  
+```env-~#PROJECT#~/conda-bld/coverage/htmlcov/index.html```
+
+
+## Building the Library
 
 Should you wish (or if you've made improvements to the source code and you want to use them), the library can be built with the following command.
 
@@ -20,7 +56,8 @@ Should you wish (or if you've made improvements to the source code and you want 
 
 This will create a plugnpy-version.tar.gz file in /dist which should be installed the same way as the prepackaged one above.
 
-### Writing Checks
+
+## Writing Checks
 
 All plugins written using the Library must first import it. This can be done by simply writing import plugnpy at the top of the script.
 
@@ -38,7 +75,7 @@ check.add_metric('metric_name', metric_value, unit, warning_threshold, critical_
                  convert_metric=True)
 ```
 
-#### Checks with thesholds
+### Checks with thesholds
 
 To create a check with thresholds, simply set the threshold values in the add_metric() call. Ideally, these metrics would come from user passed arguments but they are hardcoded here as an example.
 
@@ -53,7 +90,7 @@ This line would create the following output:
 
 The library supports all nagios threshold definitions as found here: [Nagios Development Guidelines · Nagios Plugins](https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT).
 
-#### Checks with metrics with units
+### Checks with metrics with units
 
 To create a check with thresholds, simply set the unit in the add_metric() call.
 
@@ -68,7 +105,7 @@ This line would create the following output:
 
 As you can see, all unit conversion is dealt with inside the library (so long as *convert_metric* is set to true!), allowing users to input their thresholds in friendly units rather than having to calculate the bytes themselves. Having *convert_metric* set to True will ignore the unit passed in and override it with the best match in Bytes.
 
-### Using the Argument Parser
+## Using the Argument Parser
 
 plugnpy comes with its own Argument Parser. This parser is essential argparse.ArgumentParser (a Python built in) but with its own  error() and  exit() to quit with the appropriate exit codes for Opspack UNKNOWNS.
 
@@ -86,7 +123,7 @@ parser.set_copyright("Example Copyright 2017-2018")
 
 To use the parser, create an object of type plugnpy.Parser and use as you would normally use an ArgumentParser object.
 
-### Using the Exceptions
+## Using the Exceptions
 
 plugnpy comes with its own Exception objects. These mirror the Exceptions we've used in recent Opspacks. They have no special implementation beyond their names and can be found in plugnpy.Exceptions. To be consistent, here is the appropriate times to raise each Exception.
 
