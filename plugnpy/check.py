@@ -48,6 +48,7 @@ class Check(object):
         self.metrics.append(metric)
 
     def add_message(self, message):
+        """Add a message"""
         self.metrics[-1].message = message
 
     def _exit(self, code, message):
