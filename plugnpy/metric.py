@@ -1,7 +1,7 @@
 """
 Metric Class.
 """
-from .exceptions import InvalidMetricThreshold
+from .exception import InvalidMetricThreshold
 import re
 
 # Prefixes for units
