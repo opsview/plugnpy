@@ -3,8 +3,8 @@ Check class, contains Check Object that controls the check execution.
 """
 
 from __future__ import print_function
-from metrics import Metric
-from exceptions import InvalidMetricName
+from metric import Metric
+from exception import InvalidMetricName
 
 
 class Check(object):

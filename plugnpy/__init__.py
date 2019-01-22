@@ -1,4 +1,4 @@
-from .checks import Check
-from .exceptions import ParamError, ResultError, AssumedOK, InvalidMetricThreshold, InvalidMetricName
+from .check import Check
+from .exception import ParamError, ResultError, AssumedOK, InvalidMetricThreshold, InvalidMetricName
 from .parser import Parser
-from .metrics import Metric
+from .metric import Metric

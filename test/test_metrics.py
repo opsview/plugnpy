@@ -2,8 +2,8 @@ import functools
 
 import pytest
 
-from plugnpy.exceptions import InvalidMetricThreshold
-from plugnpy.metrics import Metric
+from plugnpy.exception import InvalidMetricThreshold
+from plugnpy.metric import Metric
 
 
 def raise_or_assert(callback, raises, expected):
