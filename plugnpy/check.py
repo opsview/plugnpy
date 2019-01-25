@@ -3,8 +3,8 @@ Check class, contains Check Object that controls the check execution.
 """
 
 from __future__ import print_function
-from metrics import Metric
-from exceptions import InvalidMetricName
+from .metric import Metric
+from .exception import InvalidMetricName
 
 
 class Check(object):
@@ -48,6 +48,7 @@ class Check(object):
         self.metrics.append(metric)
 
     def add_message(self, message):
+        """Add a message"""
         self.metrics[-1].message = message
 
     def _exit(self, code, message):
@@ -85,7 +86,7 @@ class Check(object):
             "'{0}'".format(metric.name) if ' ' in metric.name else metric.name, metric.value, metric.unit,
             ';' if metric.warning_threshold or metric.critical_threshold else '', metric.warning_threshold,
             ';' if metric.warning_threshold or metric.critical_threshold else '', metric.critical_threshold
-            ) for metric in self.metrics if metric.display_in_perf]
+        ) for metric in self.metrics if metric.display_in_perf]
 
         summary = "{0}{1}{2}".format(self.sep.join(human_results),
                                      ' | ' if perf_results else '',

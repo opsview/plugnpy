@@ -2,8 +2,8 @@ import functools
 
 import pytest
 
-from plugnpy.exceptions import InvalidMetricThreshold
-from plugnpy.metrics import Metric
+from plugnpy.exception import InvalidMetricThreshold
+from plugnpy.metric import Metric
 
 
 def raise_or_assert(callback, raises, expected):
@@ -27,7 +27,7 @@ def raise_or_assert(callback, raises, expected):
         'wrong_display_format',
         'automatic_value_decimal',
         'automatic_value_bytes',
-    ])
+])
 def test_str(display_unit_factor_type, display_format, raises, expected, convert_metric):
     raise_or_assert(
         functools.partial(str, Metric(

@@ -1,0 +1,33 @@
+package:
+  name: plugnpy
+  version: 1.0.0
+
+source:
+  path: ..
+
+build:
+  number: 1
+
+requirements:
+  host:
+    - python
+    - setuptools
+  run:
+    - python
+
+test:
+  requires:
+    - python
+    - setuptools
+    - coverage
+    - pytest
+    - pytest-cov
+    - pycodestyle
+  imports:
+    - plugnpy
+
+about:
+  home: https://github.com/opsview/plugnpy
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: A Simple Python Library for creating Opsview Opspack plugins

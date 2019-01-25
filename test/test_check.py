@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from plugnpy.checks import Check
-from plugnpy.metrics import Metric
+from plugnpy.check import Check
+from plugnpy.metric import Metric
 
 
 def test_add_metric():
