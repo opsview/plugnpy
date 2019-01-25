@@ -19,17 +19,16 @@ class Parser(ArgumentParser):
         - parents -- Parsers whose arguments should be copied into this one
         - formatter_class -- HelpFormatter class for printing help messages
         - prefix_chars -- Characters that prefix optional arguments
-        - fromfile_prefix_chars -- Characters that prefix files containing
-            additional arguments
+        - fromfile_prefix_chars -- Characters that prefix files containing additional arguments
         - argument_default -- The default value for all arguments
         - conflict_handler -- String indicating how to handle conflicts
         - add_help -- Add a -h/-help option
         - allow_abbrev -- Allow long options to be abbreviated unambiguously
-        - copyright -- A copyright string to be printed in the help message
+        - copystr -- A copyright string to be printed in the help message
     """
 
-    def __init__(self, copyright=None, *args, **kwargs):
-        self._copyright = copyright
+    def __init__(self, *args, **kwargs):
+        self._copyright = kwargs.get('copystr', None)
         super(Parser, self).__init__(*args, **kwargs)
 
     def format_help(self):
@@ -39,8 +38,7 @@ class Parser(ArgumentParser):
             formatter.add_text(self._copyright)
 
         # usage
-        formatter.add_usage(self.usage, self._actions,
-                            self._mutually_exclusive_groups)
+        formatter.add_usage(self.usage, self._actions, self._mutually_exclusive_groups)
 
         # description
         formatter.add_text(self.description)
@@ -73,5 +71,6 @@ class Parser(ArgumentParser):
             self._print_message(message, sys.stdout)
         sys.exit(status)
 
-    def set_copyright(self, copyright):
-        self._copyright = copyright
+    def set_copyright(self, copystr):
+        """Set copyright string."""
+        self._copyright = copystr

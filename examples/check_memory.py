@@ -29,7 +29,7 @@ def get_args():
     """Gets passed arguments using plugnpy.Parser.
     This will exit 3 (UNKNOWN) if an input is missing"""
     parser = plugnpy.Parser(description="Monitors Memory Utilisation")
-    parser.set_copyright("Example Copyright 2017-2018")
+    parser.set_copyright("Example Copyright 2017-2019")
     parser.add_argument('-m', '--mode', help="Mode for the plugin to run (the service check)", required=True,
                         choices=['virtual_memory', 'swap_usage'])
     parser.add_argument('-w', '--warning', help="The warning threshold")

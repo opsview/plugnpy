@@ -45,7 +45,9 @@ make build
 ```
 
 The coverage report is available at:  
-```env-~#PROJECT#~/conda-bld/coverage/htmlcov/index.html```
+```
+env-~#PROJECT#~/conda-bld/coverage/htmlcov/index.html
+```
 
 
 ## Building the Library
@@ -54,7 +56,11 @@ Should you wish (or if you've made improvements to the source code and you want 
 
 `python setup.py sdist`
 
-This will create a plugnpy-version.tar.gz file in /dist which should be installed the same way as the prepackaged one above.
+or
+
+`make wheel`
+
+This will create a `plugnpy-VERSION.RELEASE.tar.gz`file in the `dist` directory which should be installed the same way as the prepackaged one above.
 
 
 ## Writing Checks
