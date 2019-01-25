@@ -1,8 +1,9 @@
 """
 Metric Class.
 """
-from .exception import InvalidMetricThreshold
 import re
+from .exception import InvalidMetricThreshold
+
 
 # Prefixes for units
 FACTOR_BASE_NUMBER = {
@@ -83,23 +84,23 @@ class Metric(object):
             self.state = 0
 
     def convert_automatic_value(self, value):
-        """Converts values with the right prefix for display"""
+        """Converts values with the right prefix for display."""
         for key in ('T', 'G', 'M', 'K'):
             if 1 / DISPLAY_UNIT_FACTORS[key][self.display_unit_factor_type] <= float(value):
                 return float(value) * DISPLAY_UNIT_FACTORS[key][self.display_unit_factor_type], '{0}{1}'.format(key, self.unit)
         return value, self.unit
 
     def convert_threshold(self, value):
+        """Convert threshold value."""
         split_list = re.split(r"([a-z])", str(value), 1, flags=re.I)
         value = int(split_list[0])
         if len(split_list) > 1:
             try:
                 unit = "".join(split_list[1:])[0]
                 return str(int(value / DISPLAY_UNIT_FACTORS[unit][self.display_unit_factor_type]))
-            except Exception as e:
-                raise InvalidMetricThreshold(e)
-        else:
-            return str(value)
+            except Exception as exp:
+                raise InvalidMetricThreshold(exp)
+        return str(value)
 
     def __str__(self):
         if self.message:
@@ -120,14 +121,13 @@ class Metric(object):
         if value == '~':  # Infinite values
             if is_start:
                 return self.N_INF
-            else:
-                return self.P_INF
+            return self.P_INF
         if value[-1].isdigit():  # No unit prefix
             return float(value)
         elif value[-1] == 'a':  # Bytes unit prefix
             return float(value[:-1])
-        else:  # Decimal unit prefix
-            return self.convert_threshold(value)
+        # Decimal unit prefix
+        return self.convert_threshold(value)
 
     def parse_threshold(self, threshold):
         """
@@ -150,8 +150,8 @@ class Metric(object):
                 start = self.parse_threshold_limit(unparsed_start, True)
                 end = self.parse_threshold_limit(unparsed_end, False)
             return start, end, check_outside_range
-        except Exception as e:
-            raise InvalidMetricThreshold(str(e))
+        except Exception as exp:
+            raise InvalidMetricThreshold(str(exp))
 
     @staticmethod
     def check(value, start, end, check_outside_range):
@@ -160,5 +160,4 @@ class Metric(object):
         outside_range = value < start or value > end
         if check_outside_range:
             return outside_range
-        else:
-            return not outside_range
+        return not outside_range
