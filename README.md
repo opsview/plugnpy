@@ -3,6 +3,9 @@
 
 *A Simple Python Library for creating [Opsview Opspack plugins](https://github.com/opsview/Opsview-Integrations/blob/master/WHAT_IS_A_MONITORING_PLUGIN.md).*
 
+[![Master Build Status](https://secure.travis-ci.org/opsview/plugnpy.png?branch=master)](https://travis-ci.org/opsview/plugnpy?branch=master)
+[![Master Coverage Status](https://coveralls.io/repos/opsview/plugnpy/badge.svg?branch=master&service=github)](https://coveralls.io/github/opsview/plugnpy?branch=master)
+
 * **category**    Libraries
 * **copyright**   2018-2019 Opsview Ltd
 * **license**     Apache License Version 2.0 (see [LICENSE](LICENSE))
