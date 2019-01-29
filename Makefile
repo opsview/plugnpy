@@ -98,7 +98,7 @@ wheel: clean version
 vtest:
 	rm -rf venv
 	virtualenv -p /usr/bin/python2.7 venv
-	source venv/bin/activate && pip install -e .[test] && make test
+	source venv/bin/activate && pip install -e .[test] && make test && coverage html
 
 # Test using setuptools
 test:
