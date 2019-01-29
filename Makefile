@@ -118,5 +118,5 @@ format:
 
 # Remove any build artifact
 clean:
-	rm -rf target htmlcov build dist .cache .benchmarks ./tests/*.so ./tests/__pycache__ ./plugnpy/__pycache__ ./plugnpy.egg-info
+	rm -rf venv target htmlcov build dist .cache .benchmarks ./test/*.so ./test/__pycache__ ./plugnpy/__pycache__ ./plugnpy.egg-info .pytest_cache .coverage .junit.xml
 	find . -type f -name '*.pyc' -exec rm -f {} \;
