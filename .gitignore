@@ -26,3 +26,4 @@ htmlcov
 build
 dist
 **/*.pyc
+venv

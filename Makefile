@@ -6,7 +6,7 @@
 # ------------------------------------------------------------------------------
 
 # List special make targets that are not associated with files
-.PHONY: help version conda conda_dev build wheel dbuild test lint doc format clean
+.PHONY: help version conda conda_dev build wheel vtest test lint doc format clean
 
 # Use bash as shell (Note: Ubuntu now uses dash which doesn't support PIPESTATUS).
 SHELL=/bin/bash
@@ -58,7 +58,8 @@ help:
 	@echo "    make conda_dev  : Build development Conda environment"
 	@echo "    make build      : Build a Conda package"
 	@echo "    make wheel      : Build a Wheel package"
-	@echo "    make test       : Execute test command - you shuould activate the conda_dev environment first"
+	@echo "    make vtest      : Execute tests inside a Python 2.7 virtualenv"
+	@echo "    make test       : Execute test command"
 	@echo "    make lint       : Evaluate code"
 	@echo "    make doc        : Start a server to display source code documentation"
 	@echo "    make format     : Format the source code"
@@ -92,6 +93,12 @@ build: clean version conda
 # Build a Wheel package
 wheel: clean version
 	python setup.py sdist bdist_wheel
+
+# Test th eproject in a Python 2.7 virtual environment
+vtest:
+	rm -rf venv
+	virtualenv -p /usr/bin/python2.7 venv
+	source venv/bin/activate && make test
 
 # Test using setuptools
 test:
