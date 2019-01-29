@@ -32,6 +32,7 @@ class RunTests(Command):
             '--cov=plugnpy',
             '--cov-report=term-missing',
             '--cov-config=.coveragerc',
+            '--junitxml=.junit.xml',
         ])
         raise SystemExit(errno)
 
