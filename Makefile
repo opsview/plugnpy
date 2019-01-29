@@ -98,11 +98,11 @@ wheel: clean version
 vtest:
 	rm -rf venv
 	virtualenv -p /usr/bin/python2.7 venv
-	source venv/bin/activate && make test
+	source venv/bin/activate && pip install -e .[test] && make test
 
 # Test using setuptools
 test:
-	python setup.py develop test
+	python setup.py test
 
 # Evaluate code
 lint:
