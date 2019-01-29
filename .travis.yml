@@ -6,6 +6,7 @@ branches:
   only:
     - master
     - develop
+    - travis
 
 python:
   - "2.7"
