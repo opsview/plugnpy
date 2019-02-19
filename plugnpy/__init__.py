@@ -8,3 +8,5 @@ from .check import Check
 from .exception import ParamError, ResultError, AssumedOK, InvalidMetricThreshold, InvalidMetricName
 from .parser import Parser
 from .metric import Metric
+
+__all__ = ['Check', 'ParamError', 'ResultError', 'AssumedOK', 'InvalidMetricThreshold', 'InvalidMetricName', 'Parser', 'Metric']
