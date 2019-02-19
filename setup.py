@@ -64,8 +64,11 @@ setup(
         'test': [
             'coverage',
             'pytest',
+            'pytest-benchmark',
             'pytest-cov',
             'pycodestyle',
+            'pylint',
+            'pyflakes',
         ],
     },
     cmdclass={'test': RunTests},

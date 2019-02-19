@@ -22,7 +22,10 @@ test:
     - coverage
     - pytest
     - pytest-cov
+    - pytest-benchmark >=3.2.*
     - pycodestyle
+    - pylint
+    - pyflakes
   imports:
     - plugnpy
 
