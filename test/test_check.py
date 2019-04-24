@@ -14,6 +14,7 @@ def test_add_metric():
     for metric in check.metrics:
         assert isinstance(metric, Metric)
 
+
 def test_add_metric_obj():
     check = Check()
     check.add_metric_obj(Metric('Memory', 4500000, 'bytes', '4M:', '6M:'))
@@ -53,6 +54,7 @@ def test_final(capsys):
             os.linesep
         )
     )
+
 
 def test_final_with_obj(capsys):
     check = Check()
