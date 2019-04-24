@@ -15,6 +15,15 @@ def test_add_metric():
         assert isinstance(metric, Metric)
 
 
+def test_add_metric_obj():
+    check = Check()
+    check.add_metric_obj(Metric('Memory', 4500000, 'bytes', '4M:', '6M:'))
+    check.add_metric_obj(Metric('CPU', 7, '%', '20:', '50:'))
+    assert len(check.metrics) == 2
+    for metric in check.metrics:
+        assert isinstance(metric, Metric)
+
+
 @pytest.mark.parametrize('status,expected', [
     ('ok', 0),
     ('warning', 1),
@@ -37,6 +46,20 @@ def test_final(capsys):
     check = Check()
     check.add_metric('Memory', 4500000, 'B', '4M:', '6M:', convert_metric=True)
     check.add_metric('CPU', 7, '%', '20:', '50:')
+    with pytest.raises(SystemExit) as e:
+        check.final()
+    assert e.value.code == 2
+    assert capsys.readouterr().out == (
+        'METRIC CRITICAL - Memory is 4.29MB, CPU is 7% | Memory=4500000B;4M:;6M: CPU=7%;20:;50:{0}'.format(
+            os.linesep
+        )
+    )
+
+
+def test_final_with_obj(capsys):
+    check = Check()
+    check.add_metric_obj(Metric('Memory', 4500000, 'B', '4M:', '6M:', convert_metric=True))
+    check.add_metric_obj(Metric('CPU', 7, '%', '20:', '50:'))
     with pytest.raises(SystemExit) as e:
         check.final()
     assert e.value.code == 2

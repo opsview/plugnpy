@@ -94,7 +94,7 @@ build: clean version conda
 wheel: clean version
 	python setup.py sdist bdist_wheel
 
-# Test th eproject in a Python 2.7 virtual environment
+# Test the project in a Python 2.7 virtual environment
 vtest:
 	rm -rf venv
 	virtualenv -p /usr/bin/python2.7 venv
