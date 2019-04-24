@@ -48,7 +48,7 @@ class Metric(object):
             warning_threshold='',
             critical_threshold='',
             display_unit_factor_type='bytes',
-            display_format="{name} is {value} {unit}",
+            display_format="{name} is {value}{unit}",
             convert_metric=True,
             display_name=None,
             display_in_summary=True,
@@ -68,11 +68,6 @@ class Metric(object):
         self.message = None
         self.convert_metric = convert_metric
 
-        # if convert_metric:
-        #     if warning_threshold:
-        #         warning_threshold = self.convert_threshold(warning_threshold)
-        #     if critical_threshold:
-        #         critical_threshold = self.convert_threshold(critical_threshold)
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
 

@@ -21,6 +21,20 @@ class Check(object):
         self.sep = sep
         self.metrics = []
 
+    def add_metric_obj(self, metric_obj):
+        """Add a metric to the check's performance data from an existing Metric object"""
+        self.add_metric(metric_obj.name,
+                        metric_obj.value,
+                        metric_obj.unit,
+                        metric_obj.warning_threshold,
+                        metric_obj.critical_threshold,
+                        metric_obj.display_unit_factor_type,
+                        metric_obj.display_format,
+                        metric_obj.display_in_perf,
+                        metric_obj.display_in_summary,
+                        metric_obj.display_name,
+                        metric_obj.convert_metric)
+
     def add_metric(self, name, value, unit='', warning_threshold='', critical_threshold='',
                    display_unit_factor_type='bytes', msg_fmt='{name} is {value}{unit}', display_in_perf=True,
                    display_in_summary=True, display_name=None, convert_metric=False):
