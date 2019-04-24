@@ -28,7 +28,10 @@ class Parser(ArgumentParser):
     """
 
     def __init__(self, *args, **kwargs):
-        self._copyright = kwargs.get('copystr', None)
+        self._copyright = None
+        if 'copystr' in kwargs:
+            self._copyright = kwargs['copystr']
+            del kwargs['copystr']
         super(Parser, self).__init__(*args, **kwargs)
 
     def format_help(self):

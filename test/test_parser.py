@@ -1,9 +1,15 @@
 import os
+import sys
 
 import pytest
 
 from plugnpy.parser import Parser
 
+
+def test_copyright(capsys):
+    parser = Parser(copystr='copyright string')
+    parser.print_help(sys.stdout)
+    assert 'copyright string' in capsys.readouterr().out
 
 def test_customizations(capsys):
     with pytest.raises(SystemExit) as e:
