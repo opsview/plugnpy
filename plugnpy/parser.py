@@ -2,9 +2,31 @@
 Argument Parser class for use in service checks.
 Based on argparse.ArgumentParser but overwrites exiting calls to exit Unknowns.
 """
+import argparse
 from argparse import ArgumentParser
 from gettext import gettext
 import sys
+
+
+class _HelpAction(argparse.Action):
+    def __init__(self,
+                 option_strings,
+                 dest=argparse.SUPPRESS,
+                 default=argparse.SUPPRESS,
+                 help=None):
+        super(_HelpAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.print_help()
+        parser.exit(3)
+
+
+argparse._HelpAction = _HelpAction
 
 
 class Parser(ArgumentParser):
@@ -77,3 +99,7 @@ class Parser(ArgumentParser):
     def set_copyright(self, copystr):
         """Set copyright string."""
         self._copyright = copystr
+
+    def _help_exit_unknown(self):
+        self.print_help()
+        self.exit(3)
