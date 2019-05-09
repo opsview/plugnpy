@@ -66,7 +66,7 @@ class Check(object):
         self.metrics[-1].message = message
 
     def _exit(self, code, message):
-        print("{0} {1}: {2}".format(self.state_type, Check.STATUS[code], message))
+        print("{0} {1} - {2}".format(self.state_type, Check.STATUS[code], message))
         exit(code)
 
     def exit_ok(self, message):
