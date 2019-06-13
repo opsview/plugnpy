@@ -10,7 +10,7 @@ from plugnpy import __release__ as RELEASE
 
 
 def read(fname):
-    return open(join(dirname(__file__), fname)).read()
+    return open(join(dirname(__file__), fname), encoding='utf-8').read()
 
 
 class RunTests(Command):
