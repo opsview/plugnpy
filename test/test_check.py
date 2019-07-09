@@ -51,7 +51,7 @@ def test_exit(capsys, status, expected):
     with pytest.raises(SystemExit) as e:
         Check().__getattribute__('exit_{0}'.format(status))('something')
     assert e.value.code == expected
-    assert capsys.readouterr().out == 'METRIC {0}: something{1}'.format(status.upper(), os.linesep)
+    assert capsys.readouterr().out == 'METRIC {0} - something{1}'.format(status.upper(), os.linesep)
 
 
 def test_final(capsys):
