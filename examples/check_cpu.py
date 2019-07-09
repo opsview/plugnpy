@@ -26,6 +26,6 @@ if __name__ == "__main__":
     check = plugnpy.Check()  # Instantiate Check object
     # Add Metric
     check.add_metric('cpu_usage', get_cpu_usage(), '%', args.warning, args.critical, display_name="CPU Usage",
-                     msg_fmt="{name} at {value}{unit}")
+                     display_format="{name} at {value}{unit}")
     # Run Check (handles printing and exit codes)
     check.final()

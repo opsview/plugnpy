@@ -80,7 +80,7 @@ To add metrics to this check, simply use the add_metric() method of your Check o
 
 ```python
 check.add_metric('metric_name', metric_value, unit, warning_threshold, critical_threshold,
-                 display_name="Metric Name", msg_fmt="{name} at {value}{unit}",
+                 display_name="Metric Name", display_format="{name} at {value}{unit}",
                  convert_metric=True)
 ```
 
@@ -90,7 +90,7 @@ To create a check with thresholds, simply set the threshold values in the add_me
 
 ```python
 check.add_metric('cpu_usage', 70.7, '%', 60, 80, display_name="CPU Usage",
-                 msg_fmt="{name} at {value}{unit}")
+                 display_format="{name} at {value}{unit}")
 ```
 
 This line would create the following output:

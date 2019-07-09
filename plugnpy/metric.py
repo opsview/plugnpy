@@ -118,11 +118,8 @@ class Metric(object):
             if is_start:
                 return self.N_INF
             return self.P_INF
-        if value[-1].isdigit():  # No unit prefix
+        if value[-1].isdigit():  # No unit suffix
             return float(value)
-        elif value[-1] == 'a':  # Bytes unit prefix
-            return float(value[:-1])
-        # Decimal unit prefix
         return self.convert_threshold(value)
 
     def parse_threshold(self, threshold):
@@ -147,7 +144,7 @@ class Metric(object):
                 end = self.parse_threshold_limit(unparsed_end, False)
             return start, end, check_outside_range
         except Exception as exp:
-            raise InvalidMetricThreshold(str(exp))
+            raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
 
     @staticmethod
     def check(value, start, end, check_outside_range):

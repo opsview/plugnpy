@@ -36,7 +36,7 @@ class Check(object):
                         metric_obj.convert_metric)
 
     def add_metric(self, name, value, unit='', warning_threshold='', critical_threshold='',
-                   display_unit_factor_type='bytes', msg_fmt='{name} is {value}{unit}', display_in_perf=True,
+                   display_unit_factor_type='bytes', display_format='{name} is {value}{unit}', display_in_perf=True,
                    display_in_summary=True, display_name=None, convert_metric=False):
         """Add a metric to the check's performance data.
 
@@ -46,7 +46,7 @@ class Check(object):
         unit -- the unit of measurement of the metric
         warning_threshold -- the warning threshold for the metric - see Monitoring Plugins Development Guidelines
         critical_threshold -- the critical threshold for the metric - see Monitoring Plugins Development Guidelines
-        msg_fmt -- the format for the output of the metric
+        display_format -- the format for the output of the metric
         display_in_perf -- whether or not to add this metric to the performance data
         display_in_summary -- whether or not to add this metric to the Summary
         """
@@ -57,7 +57,7 @@ class Check(object):
             raise InvalidMetricName("Metric names cannot contain \"=\".")
 
         metric = Metric(name, value, unit, warning_threshold or '', critical_threshold or '', display_unit_factor_type,
-                        display_format=msg_fmt, display_in_perf=display_in_perf, display_in_summary=display_in_summary,
+                        display_format=display_format, display_in_perf=display_in_perf, display_in_summary=display_in_summary,
                         display_name=display_name, convert_metric=convert_metric)
         self.metrics.append(metric)
 
@@ -66,7 +66,7 @@ class Check(object):
         self.metrics[-1].message = message
 
     def _exit(self, code, message):
-        print("{0} {1} - {2}".format(self.state_type, Check.STATUS[code], message))
+        print("{0} {1}: {2}".format(self.state_type, Check.STATUS[code], message))
         exit(code)
 
     def exit_ok(self, message):

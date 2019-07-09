@@ -14,12 +14,12 @@ def raise_or_assert(callback, raises, expected):
         assert callback() == expected
 
 
-@pytest.mark.parametrize('display_unit_factor_type,display_format,raises,expected,convert_metric', [
-    ('bytes', '{name} is {value} {unit}', False, 'Memory is 1024 bytes', False),
-    ('bytes', '{value}{unit}', False, '1024bytes', False),
-    ('bytes', '{bad} {wrong}', KeyError, None, False),
-    ('decimal', '{name} is {value} {unit}', False, 'Memory is 1024 bytes', False),
-    ('bytes', '{name} is {value} {unit}', False, 'Memory is 1024 bytes', True),
+@pytest.mark.parametrize('value,display_unit_factor_type,display_format,raises,expected,convert_metric', [
+    (1024, 'bytes', '{name} is {value} {unit}', False, 'Memory is 1024 B', False),
+    (1024, 'bytes', '{value}{unit}', False, '1024B', False),
+    (1024, 'bytes', '{bad} {wrong}', KeyError, None, False),
+    (1024, 'decimal', '{name} is {value} {unit}', False, 'Memory is 1024 B', False),
+    (1, 'bytes', '{name} is {value} {unit}', False, 'Memory is 1 B', True),
 ],
     ids=[
         'display_unit_factor',
@@ -28,10 +28,10 @@ def raise_or_assert(callback, raises, expected):
         'automatic_value_decimal',
         'automatic_value_bytes',
 ])
-def test_str(display_unit_factor_type, display_format, raises, expected, convert_metric):
+def test_str(value, display_unit_factor_type, display_format, raises, expected, convert_metric):
     raise_or_assert(
         functools.partial(str, Metric(
-            'Memory', 1024, 'bytes',
+            'Memory', value, 'B',
             display_unit_factor_type=display_unit_factor_type,
             display_format=display_format,
             convert_metric=convert_metric
@@ -73,6 +73,26 @@ def test_parse_threshold_limit(value, is_start, raises, expected):
     raise_or_assert(
         functools.partial(Metric('Something', 10, '%').parse_threshold_limit, value, is_start), raises, expected
     )
+
+
+@pytest.mark.parametrize('value, factor_type, raises, expected', [
+    (1, 'decimal', False, (1.0, 'B')),
+    (1 * 1000, 'decimal', False, (1.0, 'KB')),
+])
+def test_convert_automatic_value(value, factor_type, raises, expected):
+    metric = Metric('metric', 10, 'B', display_unit_factor_type=factor_type)
+    actual = metric.convert_automatic_value(value)
+    assert actual == expected
+
+
+@pytest.mark.parametrize('value, factor_type, expected', [
+    ('1', 'decimal', '1'),
+    ('1B', 'decimal', '1'),
+    ('1KB', 'decimal', '1000'),
+])
+def test_convert_threshold(value, factor_type, expected):
+    metric = Metric('metric', 10, 'B', display_unit_factor_type=factor_type)
+    assert metric.convert_threshold(value) == expected
 
 
 @pytest.mark.parametrize('threshold,raises,expected', [
