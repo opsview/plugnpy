@@ -14,11 +14,13 @@
 
 ## Installing the Library
 
+For Opsview versions above 6.1. plugnpy is preinstalled.
+
 For Opsview versions below 6.1, Opsview Python's pip needs to be used to install the library.
 
 `/opt/opsview/python/bin/pip install <location of plugnpy-version.tar.gz>`
 
-To install the library locally, download the release package and simply install with pip.
+To install the library locally, download the release package and install with pip.
 
 `pip install <location of plugnpy-version.tar.gz>`
 
@@ -86,14 +88,14 @@ check.add_metric('metric_name', metric_value, unit, warning_threshold, critical_
 
 ### Checks with thresholds
 
-To create a check with thresholds, simply set the threshold values in the **add_metric()** call. Ideally, these metrics would come from user passed arguments but they are hardcoded here as an example.
+To apply thresholds to a metric, simply set the threshold values in the **add_metric()** call.
 
 ```python
 check.add_metric('cpu_usage', 70.7, '%', '60', '80', display_name="CPU Usage",
                  display_format="{name} at {value}{unit}")
 ```
 
-This line would create the following output:
+This would produce the following output:
 
 `METRIC WARNING - CPU Usage at 70.7% | cpu_usage=70.7%;60;80`
 
@@ -106,7 +108,7 @@ check.add_metric('mem_swap', 100, 'B', "10MB", "20MB", display_name="Memory Swap
                  convert_metric=True)
 ```
 
-This line would create the following output:
+This would produce the following output:
 
 `METRIC OK - Memory Swap is 100B | mem_swap=100B;10MB;20MB`
 
@@ -114,30 +116,36 @@ This line would create the following output:
 
 To create a check with automatic value conversions, simply call the **add_metric()** method with the **convert_metric** field set to **True**.
 
+**Note**: Setting the **convert_metric** field to **True** will override the unit with the best match for the conversion.
+
 ```python
 check.add_metric('mem_buffer', 1829863424, 'B', "1GB", "2GB", display_name="Memory Buffer",
                  convert_metric=True)
 ```
 
-This line would create the following output:
+This would produce the following output:
 
 `METRIC WARNING - Memory Buffer is 1.70GB | mem_buffer=1829904384B;1GB;2GB`
 
-All unit conversions are dealt with inside the library (as long as **convert_metric** is set to **True**!), allowing values to be entered without having to do any manual conversions.
+All unit conversions are dealt with inside the library (as long as **convert_metric** is set to **True**), allowing values to be entered without having to do any manual conversions.
 
-For metrics with the **unit** set to bytes (**B**) conversions are done based on the International Electrotechnical Commission (IEC) standard, using 1024 as the multiplier. However the library also supports the International System (SI) standard, which uses 1000 as the multiplier, this can be changed by creating the **check** object with the **si_bytes_conversion** field set to **True** (**False** by default).
+For metrics with the **unit** set to bytes (**B**), conversions are done based on the International Electrotechnical Commission (IEC) standard, using 1024 as the multiplier. However the library also supports the International System (SI) standard, which uses 1000 as the multiplier, this can be changed by calling **add_metric()**  with the **si_bytes_conversion** field set to **True** (**False** by default).
 
 ```python
-check = plugnpy.Check(si_bytes_conversion=True)
+check.add_metric('mem_buffer', 1000, 'B', "1GB", "2GB", display_name="Memory Buffer",
+                 convert_metric=True, si_bytes_conversion=True)
 ```
 
-For metrics using any other unit, conversions are done, using the SI standard (1000 as the multiplier).
+This would produce the following output:
 
-**Note**: Having **convert_metric** set to **True** will override the unit with the best match for the conversion.
+`METRIC OK - Memory Buffer is 1KB | mem_buffer=1000;1GB;2GB`
+
+
+For metrics using any other unit, conversions are done using the SI standard (1000 as the multiplier).
 
 ## Using the Argument Parser
 
-plugnpy comes with its own Argument Parser. This parser is essentially argparse.ArgumentParser (a Python built in) but with its own **error()** and **exit()** methods to quit with the appropriate exit codes when calling -h/--help.
+plugnpy comes with its own Argument Parser. This parser is essentially argparse.ArgumentParser but will exit with code 3 when called with the -h/--help flag.
 
 The Parser also has the ability to print copyright information when -h/--help is called. This can either be setup when the Parser object is created, or added after.
 

@@ -56,47 +56,52 @@ def test_check(value, start, end, check_outside_range, expected):
     assert Metric.check(value, start, end, check_outside_range) == expected
 
 
-@pytest.mark.parametrize('value, unit, si_bytes_conversion, expected', [
+@pytest.mark.parametrize('value, unit, conversion_factor, expected', [
     # bytes conversion IEC (International Electrotechnical Commission) units
-    (1, 'B', False, (1.0, 'B')),
-    (1024, 'B', False, (1.0, 'KB')),
+    (1, 'B', 1024, (1.0, 'B')),
+    (1024, 'B', 1024, (1.0, 'KB')),
 
     # bytes conversion SI (International System) units
-    (1, 'B', True, (1.0, 'B')),
-    (1e3, 'B', True, (1.0, 'KB')),
-    (1e6, 'B', True, (1.0, 'MB')),
-    (1e9, 'B', True, (1.0, 'GB')),
-    (1e12, 'B', True, (1.0, 'TB')),
+    (1, 'B', 1000, (1.0, 'B')),
+    (1e3, 'B', 1000, (1.0, 'KB')),
+    (1e6, 'B', 1000, (1.0, 'MB')),
+    (1e9, 'B', 1000, (1.0, 'GB')),
+    (1e12, 'B', 1000, (1.0, 'TB')),
+    (1e15, 'B', 1000, (1.0, 'PB')),
+    (1e18, 'B', 1000, (1.0, 'EB')),
 
     # conversion SI units
-    (1, '', False, (1.0, '')),
-    (1e-3, '', False, (1.0, 'm')),
-    (1e-6, '', False, (1.0, 'u')),
-    (1e-9, '', False, (1.0, 'n')),
-    (1e-12, '', False, (1.0, 'p')),
-    (1e3, '', False, (1.0, 'K')),
-    (1e6, '', False, (1.0, 'M')),
-    (1e9, '', False, (1.0, 'G')),
-    (1e12, '', False, (1.0, 'T')),
+    (1, '', 1000, (1.0, '')),
+    (1e-3, '', 1000, (1.0, 'm')),
+    (1e-6, '', 1000, (1.0, 'u')),
+    (1e-9, '', 1000, (1.0, 'n')),
+    (1e-12, '', 1000, (1.0, 'p')),
+    (1e3, '', 1000, (1.0, 'K')),
+    (1e6, '', 1000, (1.0, 'M')),
+    (1e9, '', 1000, (1.0, 'G')),
+    (1e12, '', 1000, (1.0, 'T')),
 ])
-def test_convert_automatic_value(value, unit, si_bytes_conversion, expected):
-    metric = Metric('metric', 10, unit, si_bytes_conversion=si_bytes_conversion)
-    actual = metric.convert_automatic_value(value)
+def test_convert_automatic_value(value, unit, conversion_factor, expected):
+    actual = Metric.convert_automatic_value(value, unit, conversion_factor)
     assert actual == expected
 
 
-@pytest.mark.parametrize('value, si_bytes_conversion, expected', [
-    ('1', True, '1.00'),
-    ('1B', True, '1.00'),
-    ('1KB', True, '1000.00'),
-    ('1000mB', True, '1.00'),
-    ('1', False, '1.00'),
-    ('1B', False, '1.00'),
-    ('1KB', False, '1024.00'),
+@pytest.mark.parametrize('value, si_bytes_conversion, raises, expected', [
+    ('1', True, False, '1.00'),
+    ('1B', True, False, '1.00'),
+    ('1KB', True, False, '1000.00'),
+    ('1000m', True, False, '1.00'),
+    ('1', False, False, '1.00'),
+    ('1B', False, False, '1.00'),
+    ('1KB', False, False, '1024.00'),
+    ('', False, InvalidMetricThreshold, ''),
+    ('KB', False, InvalidMetricThreshold, ''),
 ])
-def test_convert_threshold(value, si_bytes_conversion, expected):
-    metric = Metric('metric', 10, 'B', si_bytes_conversion=si_bytes_conversion)
-    assert metric.convert_threshold(value) == expected
+def test_convert_threshold(value, si_bytes_conversion, raises, expected):
+    raise_or_assert(
+        functools.partial(Metric('metric', 10, 'B', si_bytes_conversion=si_bytes_conversion).convert_threshold,
+                          value), raises, expected
+    )
 
 
 @pytest.mark.parametrize('value, is_start, raises, expected', [

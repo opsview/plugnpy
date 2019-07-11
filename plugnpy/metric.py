@@ -1,22 +1,7 @@
 """
 Metric Class.
 """
-import re
 from .exception import InvalidMetricThreshold
-
-
-# Prefixes for units
-DISPLAY_UNIT_FACTORS = {
-    'B': lambda factor: 1.0,
-    'p': lambda factor: factor ** 4,  # pico
-    'n': lambda factor: factor ** 3,  # nano
-    'u': lambda factor: factor ** 2,  # micro
-    'm': lambda factor: factor,  # mili
-    'K': lambda factor: 1.0 / factor,  # kilo
-    'M': lambda factor: 1.0 / factor ** 2,  # mega
-    'G': lambda factor: 1.0 / factor ** 3,  # giga
-    'T': lambda factor: 1.0 / factor ** 4,  # tera
-}
 
 
 class Metric(object):
@@ -29,15 +14,49 @@ class Metric(object):
         - warning_threshold -- Warning threshold for the Metric (default: '')
         - critical_threshold -- Critical threshold for the Metric (default: '')
         - display_format -- Formatting string to print the Metric (default: "{name} is {value} {unit}")
-        - convert_metric -- Whether to convert the metric in to a friendly form (default: True)
         - display_name -- Name to be used in friendly output (default: value of name)
+        - display_in_summary -- Whether to print the metric in the summary (default: True)
         - display_in_perf -- Whether to print the metric in performance variable (default: True)
+        - convert_metric -- Whether to convert the metric in to a friendly form (default: False)
+        - si_bytes_conversion -- Whether to convert values using the SI standard, uses IEC by default (default: False)
+        - precision -- The number of decimal places to round the metric value to (default 2)
         """
 
     P_INF = float('inf')
     N_INF = float('-inf')
 
-    BYTES_UNIT = 'B'
+    SI_UNIT_FACTOR = 1000
+    IEC_UNIT_FACTOR = 1024
+
+    UNIT_BYTES = 'B'
+    UNIT_PICO = 'p'
+    UNIT_NANO = 'n'
+    UNIT_MICRO = 'u'
+    UNIT_MILLI = 'm'
+    UNIT_KILO = 'K'
+    UNIT_MEGA = 'M'
+    UNIT_GIGA = 'G'
+    UNIT_TERA = 'T'
+    UNIT_PETA = 'P'
+    UNIT_EXA = 'E'
+
+    UNIT_PREFIXES_P = (UNIT_EXA, UNIT_PETA, UNIT_TERA, UNIT_GIGA, UNIT_MEGA, UNIT_KILO)
+    UNIT_PREFIXES_N = (UNIT_MILLI, UNIT_MICRO, UNIT_NANO, UNIT_PICO)
+
+    # Prefixes for units
+    DISPLAY_UNIT_FACTORS = {
+        UNIT_BYTES: lambda factor: 1.0,
+        UNIT_PICO: lambda factor: factor ** 4,
+        UNIT_NANO: lambda factor: factor ** 3,
+        UNIT_MICRO: lambda factor: factor ** 2,
+        UNIT_MILLI: lambda factor: factor,
+        UNIT_KILO: lambda factor: 1.0 / factor,
+        UNIT_MEGA: lambda factor: 1.0 / factor ** 2,
+        UNIT_GIGA: lambda factor: 1.0 / factor ** 3,
+        UNIT_TERA: lambda factor: 1.0 / factor ** 4,
+        UNIT_PETA: lambda factor: 1.0 / factor ** 5,
+        UNIT_EXA: lambda factor: 1.0 / factor ** 6,
+    }
 
     def __init__(
             self, name, value, unit,
@@ -48,7 +67,8 @@ class Metric(object):
             display_in_summary=True,
             display_in_perf=True,
             convert_metric=False,
-            si_bytes_conversion=False
+            si_bytes_conversion=False,
+            precision=2
     ):
         self.name = name
         self.display_in_summary = display_in_summary
@@ -63,8 +83,11 @@ class Metric(object):
         self.message = None
         self.convert_metric = convert_metric
 
-        bytes_conversion_factor = 1000 if si_bytes_conversion else 1024
-        self.conversion_factor = bytes_conversion_factor if self.unit == self.BYTES_UNIT else 1000
+        self.si_bytes_conversion = si_bytes_conversion
+        bytes_conversion_factor = Metric.SI_UNIT_FACTOR if si_bytes_conversion else Metric.IEC_UNIT_FACTOR
+        self.conversion_factor = bytes_conversion_factor if self.unit == Metric.UNIT_BYTES else Metric.SI_UNIT_FACTOR
+
+        self.precision = precision
 
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
@@ -77,31 +100,37 @@ class Metric(object):
             self.state = 0
 
 
-    def convert_automatic_value(self, value):
+    @staticmethod
+    def convert_automatic_value(value, unit, conversion_factor):
         """Converts values with the right prefix for display."""
-
-        if self.unit != self.BYTES_UNIT and value < 1:
-            keys = ('m', 'u', 'n', 'p')
-        else:
-            keys = ('T', 'G', 'M', 'K')
+        keys = Metric.UNIT_PREFIXES_N if unit != Metric.UNIT_BYTES and value < 1 else Metric.UNIT_PREFIXES_P
 
         for key in keys:
-            multiplication_factor = DISPLAY_UNIT_FACTORS[key](self.conversion_factor)
+            multiplication_factor = Metric.DISPLAY_UNIT_FACTORS[key](conversion_factor)
             if 1.0 / multiplication_factor <= value:
-                return value * multiplication_factor, '{0}{1}'.format(key, self.unit)
-        return value, self.unit
+                return value * multiplication_factor, '{0}{1}'.format(key, unit)
+        return value, unit
 
     def convert_threshold(self, value):
         """Convert threshold value."""
-        split_list = re.split(r"([a-z])", str(value), 1, flags=re.I)
-        value = float(split_list[0])
-        if len(split_list) > 1:
+
+        value = str(value)
+        unit = value.lstrip('.1234567890')
+        if unit:
+            value = value[:-len(unit)]
+
+        try:
+            value = float(value)
+        except ValueError as exp:
+            raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
+
+        if unit:
             try:
-                unit = "".join(split_list[1:])[0]
-                value = value / DISPLAY_UNIT_FACTORS[unit](self.conversion_factor)
-            except Exception as exp:
-                raise InvalidMetricThreshold(exp)
-        return "{0:.2f}".format(value)
+                unit = unit[0]  # get unit prefix
+                value = value / Metric.DISPLAY_UNIT_FACTORS[unit](self.conversion_factor)
+            except KeyError as exp:
+                raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
+        return "{0:.{1}f}".format(value, self.precision)
 
     def __str__(self):
         if self.message:
@@ -111,14 +140,14 @@ class Metric(object):
         value = self.value
 
         if self.convert_metric:
-            value, unit = self.convert_automatic_value(self.value)
+            value, unit = Metric.convert_automatic_value(self.value, self.unit, self.conversion_factor)
 
-        value = "{0:.2f}".format(value)
+        value = "{0:.{1}f}".format(value, self.precision)
 
         return self.display_format.format(**{'name': name, 'value': value, 'unit': unit})
 
     def parse_threshold_limit(self, value, is_start):
-        """Parses a numeric string with a unit prefix e.g. 10 > 10.0, 10m > 0.001, 10M > 1000000.0, ~ > -inf/inf."""
+        """Parses a numeric string with a unit prefix e.g. 10 -> 10.0, 10m -> 0.001, 10M -> 1000000.0, ~ -> -inf/inf."""
         if value == '~':  # Infinite values
             if is_start:
                 return self.N_INF
