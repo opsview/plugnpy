@@ -3,7 +3,6 @@ Argument Parser class for use in service checks.
 Based on argparse.ArgumentParser but overwrites exiting calls to exit Unknowns.
 """
 import argparse
-from argparse import ArgumentParser
 from gettext import gettext
 import sys
 
@@ -29,7 +28,7 @@ class _HelpAction(argparse.Action):
 argparse._HelpAction = _HelpAction
 
 
-class Parser(ArgumentParser):
+class Parser(argparse.ArgumentParser):
     """Object for parsing command line strings into Python objects.
     Modified to exit with Opsview specific exits.
 
@@ -99,7 +98,3 @@ class Parser(ArgumentParser):
     def set_copyright(self, copystr):
         """Set copyright string."""
         self._copyright = copystr
-
-    def _help_exit_unknown(self):
-        self.print_help()
-        self.exit(3)

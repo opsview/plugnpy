@@ -16,9 +16,10 @@ class Check(object):
     """
     STATUS = {0: 'OK', 1: 'WARNING', 2: 'CRITICAL', 3: 'UNKNOWN'}
 
-    def __init__(self, state_type="METRIC", sep=', '):
+    def __init__(self, state_type="METRIC", sep=', ', si_bytes_conversion=False):
         self.state_type = state_type
         self.sep = sep
+        self.si_bytes_conversion = si_bytes_conversion
         self.metrics = []
 
     def add_metric_obj(self, metric_obj):
@@ -28,7 +29,6 @@ class Check(object):
                         metric_obj.unit,
                         metric_obj.warning_threshold,
                         metric_obj.critical_threshold,
-                        metric_obj.display_unit_factor_type,
                         metric_obj.display_format,
                         metric_obj.display_in_perf,
                         metric_obj.display_in_summary,
@@ -36,7 +36,7 @@ class Check(object):
                         metric_obj.convert_metric)
 
     def add_metric(self, name, value, unit='', warning_threshold='', critical_threshold='',
-                   display_unit_factor_type='bytes', display_format='{name} is {value}{unit}', display_in_perf=True,
+                   display_format='{name} is {value}{unit}', display_in_perf=True,
                    display_in_summary=True, display_name=None, convert_metric=False):
         """Add a metric to the check's performance data.
 
@@ -56,9 +56,10 @@ class Check(object):
         if "=" in name:
             raise InvalidMetricName("Metric names cannot contain \"=\".")
 
-        metric = Metric(name, value, unit, warning_threshold or '', critical_threshold or '', display_unit_factor_type,
-                        display_format=display_format, display_in_perf=display_in_perf, display_in_summary=display_in_summary,
-                        display_name=display_name, convert_metric=convert_metric)
+        metric = Metric(name, value, unit, warning_threshold or '', critical_threshold or '',
+                        display_format=display_format, display_in_perf=display_in_perf,
+                        display_in_summary=display_in_summary, display_name=display_name,
+                        convert_metric=convert_metric, si_bytes_conversion=self.si_bytes_conversion)
         self.metrics.append(metric)
 
     def add_message(self, message):

@@ -36,7 +36,7 @@ def test_add_metric_invalid_metric_name(metric_name, expected):
     assert str(ex.value) == expected
 
 
-@pytest.mark.parametrize('status,expected', [
+@pytest.mark.parametrize('status, expected', [
     ('ok', 0),
     ('warning', 1),
     ('critical', 2),
@@ -62,7 +62,7 @@ def test_final(capsys):
         check.final()
     assert e.value.code == 2
     assert capsys.readouterr().out == (
-        'METRIC CRITICAL - Memory is 4.29MB, CPU is 7% | Memory=4500000B;4M:;6M: CPU=7%;20:;50:{0}'.format(
+        'METRIC CRITICAL - Memory is 4.29MB, CPU is 7.00% | Memory=4500000B;4M:;6M: CPU=7%;20:;50:{0}'.format(
             os.linesep
         )
     )
@@ -90,7 +90,7 @@ def test_final_with_obj(capsys):
         check.final()
     assert e.value.code == 2
     assert capsys.readouterr().out == (
-        'METRIC CRITICAL - Memory is 4.29MB, CPU is 7% | Memory=4500000B;4M:;6M: CPU=7%;20:;50:{0}'.format(
+        'METRIC CRITICAL - Memory is 4.29MB, CPU is 7.00% | Memory=4500000B;4M:;6M: CPU=7%;20:;50:{0}'.format(
             os.linesep
         )
     )

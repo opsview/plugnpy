@@ -28,7 +28,3 @@ def test_help_exit(capsys):
     with pytest.raises(SystemExit) as ex:
         parser.parse_args(args=['-h'])
     assert ex.value.code == 3
-
-    with pytest.raises(SystemExit) as ex:
-        parser._help_exit_unknown()
-    assert ex.value.code == 3
