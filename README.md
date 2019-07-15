@@ -80,17 +80,23 @@ This will create a `plugnpy-VERSION.RELEASE.tar.gz` file in the `dist` directory
 
 All plugins written using the Library must first import it. This can be done by simply writing import plugnpy at the top of the script.
 
-The core of a check written using plugnpy is the Check object. A Check object must be instantiated before Metrics can be defined.
+The core of a check written using plugnpy is the **Check** object. A **Check** object must be instantiated before metrics can be defined.
 
 ```python
 check = plugnpy.Check()
 ```
 
-To add metrics to this check, simply use the add_metric() method of your Check object. This takes in arguments to add a Metric object to an internal array. It is these Metric objects that are called upon to create the final output.
+To add metrics to this check, simply use the **add_metric()** method of your **Check** object. This takes in arguments to add a **Metric** object to an internal array.
 
 ```python
 check.add_metric('disk_usage', 30.5, '%', '70', '90',
                  display_name="Disk Usage", display_format="{name} is {value}{unit}")
+```
+
+The **Metric** objects are then used to create the final output when the **final()** method is called.
+
+```python
+check.final()
 ```
 
 This would produce the following output:
@@ -107,19 +113,20 @@ check.add_metric('disk_usage', 30.5, '%', '70', '90', display_name="Disk Usage",
                  display_format="{name} is {value}{unit}")
 check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name="CPU Usage",
                  display_format="{name} is {value}{unit}")
+check.final()
 ```
 
 This would produce the following output:
 
 `METRIC WARNING - Disk Usage is 30.5%, CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
 
-When adding multiple metrics, the separator between metrics can be customised. By default this is set to ', ' but can easily be changed by setting the **sep** field when creating the **check** object.
+When adding multiple metrics, the separator between metrics can be customised. By default this is set to ', ' but can easily be changed by setting the **sep** field when creating the **Check** object.
 
 ```python
 check = plugnpy.Check(sep=' ')
 ```
 
-Adding multiple metrics to the check object would then produce the following output:
+Adding multiple metrics to the **Check** object would then produce the following output:
 
 `METRIC OK - Disk Usage is 30.5% CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
 
@@ -178,6 +185,34 @@ This would produce the following output:
 
 
 For metrics using any other unit, conversions are done using the SI standard (1000 as the multiplier).
+
+## Helper methods
+
+The metric class includes two helper methods to make developing service checks easier.
+
+The **evaluate()** method evaluates a metric value against the specified warning and critical thresholds and returns the status code.
+
+```python
+status_code = metric.evaluate(15, '10', '20')
+```
+
+The above example would return the value '`1`', since the value is above the warning threshold but not the critical threshold.
+
+The **convert_value()** method converts a given value and unit to a more human friendly value and unit.
+
+```python
+value, unit = metric.convert_value(2048, 'B')
+```
+
+The above example would return '`2.00`' as the value and '`KB`' as the unit.
+
+```python
+status_code = metric.evaluate(15, '10', '20')
+```
+
+The above example would return the value `1`, since the value is above the warning threshold but not the critical threshold.
+
+Both methods support the **si_bytes_conversion** field. See [**Checks with automatic conversions**](#checks-with-automatic-conversions) above for more details.
 
 ## Using the Argument Parser
 
