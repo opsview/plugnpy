@@ -99,19 +99,19 @@ This would produce the following output:
 
 ## Writing checks with multiple metrics
 
-Writing service checks with multiple metrics is easy. Simply create the **check** object and add multiple metrics using the **add_metric** method.
+Writing service checks with multiple metrics is easy. Simply create the **Check** object and add multiple metrics using the **add_metric()** method.
 
 ```python
 check = plugnpy.Check()
 check.add_metric('disk_usage', 30.5, '%', '70', '90', display_name="Disk Usage",
                  display_format="{name} is {value}{unit}")
-check.add_metric('cpu_usage', 70.7, '%', '60', '80', display_name="CPU Usage",
+check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name="CPU Usage",
                  display_format="{name} is {value}{unit}")
 ```
 
 This would produce the following output:
 
-`METRIC OK - Disk Usage is 30.5%, CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
+`METRIC WARNING - Disk Usage is 30.5%, CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
 
 When adding multiple metrics, the separator between metrics can be customised. By default this is set to ', ' but can easily be changed by setting the **sep** field when creating the **check** object.
 
@@ -121,20 +121,20 @@ check = plugnpy.Check(sep=' ')
 
 Adding multiple metrics to the check object would then produce the following output:
 
-`METRIC OK - Disk Usage is 30.5% CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%`
+`METRIC OK - Disk Usage is 30.5% CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
 
 ### Checks with thresholds
 
 To apply thresholds to a metric, simply set the threshold values in the **add_metric()** call.
 
 ```python
-check.add_metric('cpu_usage', 70.7, '%', '60', '80', display_name="CPU Usage",
+check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name="CPU Usage",
                  display_format="{name} is {value}{unit}")
 ```
 
 This would produce the following output:
 
-`METRIC WARNING - CPU Usage is 70.7% | cpu_usage=70.7%;60;80`
+`METRIC WARNING - CPU Usage is 70.7% | cpu_usage=70.7%;70;90`
 
 The library supports all nagios threshold definitions as found here: [Nagios Development Guidelines · Nagios Plugins](https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT).
 

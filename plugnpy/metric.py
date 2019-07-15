@@ -80,6 +80,7 @@ class Metric(object):
         self.unit = unit
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
+        self.display_name = display_name if display_name else self.name
         self.display_in_summary = display_in_summary
         self.display_in_perf = display_in_perf
         self.display_format = display_format
@@ -87,10 +88,6 @@ class Metric(object):
         self.convert_metric = convert_metric
         self.si_bytes_conversion = si_bytes_conversion
         self.state = Metric.evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion)
-
-        if not display_name:
-            display_name = self.name
-        self.display_name = display_name
 
         try:
             self.precision = int(precision)
