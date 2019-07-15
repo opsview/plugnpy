@@ -81,10 +81,24 @@ check = plugnpy.Check()
 To add metrics to this check, simply use the add_metric() method of your Check object. This takes in arguments to add a Metric object to an internal array. It is these Metric objects that are called upon to create the final output.
 
 ```python
-check.add_metric('metric_name', metric_value, unit, warning_threshold, critical_threshold,
-                 display_name="Metric Name", display_format="{name} at {value}{unit}",
+check.add_metric('disk_usage', 30.5, '%', '70', '90',
+                 display_name="Disk Usage", display_format="{name} is {value}{unit}",
                  convert_metric=True)
 ```
+
+This would produce the following output:
+
+`METRIC OK - Disk Usage is 30.5% | disk_usage=30.5%;70;90`
+
+When adding multiple metrics, the separator between metrics can be customised. By default this is set to ', ' but can easily be changed by setting the **sep** field when creating the **check** object.
+
+```python
+check = plugnpy.Check(sep=' ')
+```
+
+Adding multiple metrics to the check object would then produce the following output:
+
+`METRIC OK - Disk Usage is 30.5% CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%`
 
 ### Checks with thresholds
 
@@ -119,13 +133,13 @@ To create a check with automatic value conversions, simply call the **add_metric
 **Note**: Setting the **convert_metric** field to **True** will override the unit with the best match for the conversion.
 
 ```python
-check.add_metric('mem_buffer', 1829863424, 'B', "1GB", "2GB", display_name="Memory Buffer",
+check.add_metric('mem_buffer', 1829863424, 'B', "1073741824", "2147483648", display_name="Memory Buffer",
                  convert_metric=True)
 ```
 
 This would produce the following output:
 
-`METRIC WARNING - Memory Buffer is 1.70GB | mem_buffer=1829904384B;1GB;2GB`
+`METRIC WARNING - Memory Buffer is 1.70GB | mem_buffer=1829904384B;1073741824;2147483648`
 
 All unit conversions are dealt with inside the library (as long as **convert_metric** is set to **True**), allowing values to be entered without having to do any manual conversions.
 
@@ -145,7 +159,7 @@ For metrics using any other unit, conversions are done using the SI standard (10
 
 ## Using the Argument Parser
 
-plugnpy comes with its own Argument Parser. This parser is essentially argparse.ArgumentParser but will exit with code 3 when called with the -h/--help flag.
+plugnpy comes with its own Argument Parser. This parser inherits from argparse.ArgumentParser but will exit with code 3 when called with the -h/--help flag.
 
 The Parser also has the ability to print copyright information when -h/--help is called. This can either be setup when the Parser object is created, or added after.
 

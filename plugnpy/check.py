@@ -33,22 +33,28 @@ class Check(object):
                         metric_obj.display_in_summary,
                         metric_obj.display_name,
                         metric_obj.convert_metric,
-                        metric_obj.si_bytes_conversion)
+                        metric_obj.si_bytes_conversion,
+                        metric_obj.precision)
 
     def add_metric(self, name, value, unit='', warning_threshold='', critical_threshold='',
                    display_format='{name} is {value}{unit}', display_in_perf=True,
-                   display_in_summary=True, display_name=None, convert_metric=False, si_bytes_conversion=False):
+                   display_in_summary=True, display_name=None, convert_metric=False, si_bytes_conversion=False,
+                   precision=2):
         """Add a metric to the check's performance data.
 
         Keyword Arguments:
-        name -- the name of the metric
-        value -- the value of the metric
-        unit -- the unit of measurement of the metric
-        warning_threshold -- the warning threshold for the metric - see Monitoring Plugins Development Guidelines
-        critical_threshold -- the critical threshold for the metric - see Monitoring Plugins Development Guidelines
-        display_format -- the format for the output of the metric
-        display_in_perf -- whether or not to add this metric to the performance data
-        display_in_summary -- whether or not to add this metric to the Summary
+        - name -- Name of the Metric
+        - value -- Value of the Metric (note: do not include unit of measure)
+        - unit -- Unit of Measure of the Metric
+        - warning_threshold -- Warning threshold for the Metric (default: '') - see Monitoring Plugins Development Guidelines
+        - critical_threshold -- Critical threshold for the Metric (default: '') - see Monitoring Plugins Development Guidelines
+        - display_format -- Formatting string to print the Metric (default: "{name} is {value} {unit}")
+        - display_name -- Name to be used in friendly output (default: value of name)
+        - display_in_summary -- Whether to print the metric in the summary (default: True)
+        - display_in_perf -- Whether to print the metric in performance data (default: True)
+        - convert_metric -- Whether to convert the metric value to a more human friendly unit (default: False)
+        - si_bytes_conversion -- Whether to convert values using the SI standard, uses IEC by default (default: False)
+        - precision -- The number of decimal places to round the metric value to (default 2)
         """
 
         if "'" in name:
@@ -59,7 +65,7 @@ class Check(object):
         metric = Metric(name, value, unit, warning_threshold or '', critical_threshold or '',
                         display_format=display_format, display_in_perf=display_in_perf,
                         display_in_summary=display_in_summary, display_name=display_name,
-                        convert_metric=convert_metric, si_bytes_conversion=si_bytes_conversion)
+                        convert_metric=convert_metric, si_bytes_conversion=si_bytes_conversion, precision=precision)
         self.metrics.append(metric)
 
     def add_message(self, message):
