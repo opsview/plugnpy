@@ -53,14 +53,14 @@ def test_str(value, si_bytes_conversion, display_format, raises, expected, conve
     'inside_ok',
     'inside_ko',
 ])
-def test_chec_rangek(value, start, end, check_outside_range, expected):
+def test_check_range(value, start, end, check_outside_range, expected):
     assert Metric._check_range(value, start, end, check_outside_range) == expected
 
 
 @pytest.mark.parametrize('value, unit, si_bytes_conversion, raises, expected', [
     # bytes conversion IEC (International Electrotechnical Commission) units
-    (1, 'B', False, False, (1.00, 'B')),
-    (1024, 'B', False, False, (1.00, 'KB')),
+    (1, 'B', False, False, (1.0, 'B')),
+    (1024, 'B', False, False, (1.0, 'KB')),
 
     # bytes conversion SI (International System) units
     (1, 'B', True, False, (1.0, 'B')),
