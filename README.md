@@ -18,11 +18,15 @@ For Opsview versions above 6.1. plugnpy is preinstalled.
 
 For Opsview versions below 6.1, Opsview Python's pip needs to be used to install the library.
 
-`/opt/opsview/python/bin/pip install <location of plugnpy-version.tar.gz>`
+```
+/opt/opsview/python/bin/pip install <location of plugnpy-version.tar.gz>
+```
 
 To install the library locally, download the release package and install with pip.
 
-`pip install <location of plugnpy-version.tar.gz>`
+```
+pip install <location of plugnpy-version.tar.gz>
+```
 
 ## Quick Start
 
@@ -59,13 +63,17 @@ env-~#PROJECT#~/conda-bld/coverage/htmlcov/index.html
 
 Should you wish (or if you've made improvements to the source code and you want to use them), the library can be built with the following command.
 
-`python setup.py sdist`
+```
+python setup.py sdist
+```
 
 or
 
-`make wheel`
+```
+make wheel
+```
 
-This will create a `plugnpy-VERSION.RELEASE.tar.gz`file in the `dist` directory which should be installed the same way as the prepackaged one above.
+This will create a `plugnpy-VERSION.RELEASE.tar.gz` file in the `dist` directory which should be installed the same way as the prepackaged one above.
 
 
 ## Writing Checks
@@ -82,13 +90,28 @@ To add metrics to this check, simply use the add_metric() method of your Check o
 
 ```python
 check.add_metric('disk_usage', 30.5, '%', '70', '90',
-                 display_name="Disk Usage", display_format="{name} is {value}{unit}",
-                 convert_metric=True)
+                 display_name="Disk Usage", display_format="{name} is {value}{unit}")
 ```
 
 This would produce the following output:
 
 `METRIC OK - Disk Usage is 30.5% | disk_usage=30.5%;70;90`
+
+## Writing checks with multiple metrics
+
+Writing service checks with multiple metrics is easy. Simply create the **check** object and add multiple metrics using the **add_metric** method.
+
+```python
+check = plugnpy.Check()
+check.add_metric('disk_usage', 30.5, '%', '70', '90', display_name="Disk Usage",
+                 display_format="{name} is {value}{unit}")
+check.add_metric('cpu_usage', 70.7, '%', '60', '80', display_name="CPU Usage",
+                 display_format="{name} is {value}{unit}")
+```
+
+This would produce the following output:
+
+`METRIC OK - Disk Usage is 30.5%, CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
 
 When adding multiple metrics, the separator between metrics can be customised. By default this is set to ', ' but can easily be changed by setting the **sep** field when creating the **check** object.
 
@@ -106,20 +129,19 @@ To apply thresholds to a metric, simply set the threshold values in the **add_me
 
 ```python
 check.add_metric('cpu_usage', 70.7, '%', '60', '80', display_name="CPU Usage",
-                 display_format="{name} at {value}{unit}")
+                 display_format="{name} is {value}{unit}")
 ```
 
 This would produce the following output:
 
-`METRIC WARNING - CPU Usage at 70.7% | cpu_usage=70.7%;60;80`
+`METRIC WARNING - CPU Usage is 70.7% | cpu_usage=70.7%;60;80`
 
 The library supports all nagios threshold definitions as found here: [Nagios Development Guidelines · Nagios Plugins](https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT).
 
 As well as being fully compatible with nagios thresholds, plugnpy allows thresholds to be specified in friendly units.
 
 ```python
-check.add_metric('mem_swap', 100, 'B', "10MB", "20MB", display_name="Memory Swap",
-                 convert_metric=True)
+check.add_metric('mem_swap', 100, 'B', "10MB", "20MB", display_name="Memory Swap")
 ```
 
 This would produce the following output:
@@ -130,7 +152,7 @@ This would produce the following output:
 
 To create a check with automatic value conversions, simply call the **add_metric()** method with the **convert_metric** field set to **True**.
 
-**Note**: Setting the **convert_metric** field to **True** will override the unit with the best match for the conversion.
+**Note**: Setting the **convert_metric** field to **True** will override the unit (displayed in the summary) with the best match for the conversion.
 
 ```python
 check.add_metric('mem_buffer', 1829863424, 'B', "1073741824", "2147483648", display_name="Memory Buffer",
@@ -177,7 +199,7 @@ To use the parser, create an object of type plugnpy.Parser and use as you would 
 
 ## Using the Exceptions
 
-plugnpy comes with its own Exception objects. These mirror the Exceptions we've used in recent Opspacks. They have no special implementation beyond their names and can be found in plugnpy.Exceptions. To be consistent, here is the appropriate times to raise each Exception.
+plugnpy comes with its own Exception objects. They have no special implementation beyond their names and can be found in plugnpy.Exceptions. To be consistent, here is the appropriate times to raise each Exception.
 
 | Exception              | Usage                                                                                                                                                                |
 |------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|

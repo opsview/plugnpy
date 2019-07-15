@@ -76,62 +76,66 @@ class Metric(object):
             precision=2
     ):
         self.name = name
-        self.display_in_summary = display_in_summary
-        self.display_in_perf = display_in_perf
-        if not display_name:
-            display_name = self.name
-        self.display_name = display_name
         self.value = value
         self.unit = unit
-
+        self.warning_threshold = warning_threshold
+        self.critical_threshold = critical_threshold
+        self.display_in_summary = display_in_summary
+        self.display_in_perf = display_in_perf
         self.display_format = display_format
         self.message = None
         self.convert_metric = convert_metric
-
         self.si_bytes_conversion = si_bytes_conversion
-        if self.unit == Metric.UNIT_BYTES and not si_bytes_conversion:
-            self.conversion_factor = Metric.IEC_UNIT_FACTOR
-        else:
-            self.conversion_factor = Metric.SI_UNIT_FACTOR
+        self.state = Metric.evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion)
+
+        if not display_name:
+            display_name = self.name
+        self.display_name = display_name
 
         try:
             self.precision = int(precision)
-        except ValueError as ex:
-            raise Exception("Invalid value for precision '{0}': {1}".format(self.precision, ex))
-
-        self.warning_threshold = warning_threshold
-        self.critical_threshold = critical_threshold
-        self.state = Metric.evaluate(value, warning_threshold, critical_threshold, self.conversion_factor)
+        except (ValueError, TypeError) as ex:
+            raise Exception("Invalid value for precision '{0}': {1}".format(precision, ex))
 
     def __str__(self):
         if self.message:
             return self.message
-        name = self.display_name
         unit = self.unit
         value = self.value
 
         if self.convert_metric:
-            value, unit = Metric.convert_value(self.value, self.unit, self.conversion_factor)
+            value, unit = Metric.convert_value(self.value, self.unit, self.si_bytes_conversion)
 
-        value = "{0:.{1}f}".format(value, self.precision)
+        # try to convert value to precision specified if it's a number
+        try:
+            value = float(value)
+            value = "{0:.{1}f}".format(value, self.precision)
+        except (ValueError, TypeError):
+            pass
 
-        return self.display_format.format(**{'name': name, 'value': value, 'unit': unit})
+        return self.display_format.format(**{'name': self.display_name, 'value': value, 'unit': unit})
 
     @staticmethod
-    def evaluate(value, warning_threshold, critical_threshold, conversion_factor):
+    def evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion=False):
         """return the status code of a service check given the value, warning and critical thresholds"""
         status = Metric.STATUS_OK
         if warning_threshold:
-            if Metric._check(value, *Metric._parse_threshold(warning_threshold, conversion_factor)):
+            if Metric._check_range(value, *Metric._parse_threshold(warning_threshold, si_bytes_conversion)):
                 status = Metric.STATUS_WARNING
         if critical_threshold:
-            if Metric._check(value, *Metric._parse_threshold(critical_threshold, conversion_factor)):
+            if Metric._check_range(value, *Metric._parse_threshold(critical_threshold, si_bytes_conversion)):
                 status = Metric.STATUS_CRITICAL
         return status
 
     @staticmethod
-    def convert_value(value, unit, conversion_factor):
+    def convert_value(value, unit, si_bytes_conversion=False):
         """Converts values with the right prefix for display."""
+        try:
+            value = float(value)
+        except (ValueError, TypeError) as ex:
+            raise Exception("Invalid value for value '{0}': {1}".format(value, ex))
+
+        conversion_factor = Metric._get_conversion_factor(unit, si_bytes_conversion)
         keys = Metric.UNIT_PREFIXES_N if unit != Metric.UNIT_BYTES and value < 1 else Metric.UNIT_PREFIXES_P
 
         for key in keys:
@@ -141,9 +145,14 @@ class Metric(object):
         return value, unit
 
     @staticmethod
-    def _convert_threshold(value, conversion_factor):
-        """Convert threshold value."""
+    def _get_conversion_factor(unit, si_bytes_conversion):
+        if unit == Metric.UNIT_BYTES and not si_bytes_conversion:
+            return Metric.IEC_UNIT_FACTOR
+        return Metric.SI_UNIT_FACTOR
 
+    @staticmethod
+    def _convert_threshold(value, si_bytes_conversion):
+        """Convert threshold value."""
         value = str(value)
         unit = value.lstrip('.1234567890')
         if unit:
@@ -151,19 +160,20 @@ class Metric(object):
 
         try:
             value = float(value)
-        except ValueError as exp:
+        except (ValueError, TypeError) as exp:
             raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
 
         if unit:
             try:
-                unit = unit[0]  # get unit prefix
-                value = value / Metric.DISPLAY_UNIT_FACTORS[unit](conversion_factor)
+                unit_prefix = unit[0]
+                conversion_factor = Metric._get_conversion_factor(unit[-1], si_bytes_conversion)
+                value = value / Metric.DISPLAY_UNIT_FACTORS[unit_prefix](conversion_factor)
             except KeyError as exp:
                 raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
-        return "{0:.2f}".format(value)
+        return value
 
     @staticmethod
-    def _parse_threshold_limit(value, is_start, conversion_factor):
+    def _parse_threshold_limit(value, is_start, si_bytes_conversion):
         """Parses a numeric string with a unit prefix e.g. 10 -> 10.0, 10m -> 0.001, 10M -> 1000000.0, ~ -> -inf/inf."""
         if value == '~':  # Infinite values
             if is_start:
@@ -171,10 +181,10 @@ class Metric(object):
             return Metric.P_INF
         if value[-1].isdigit():  # No unit suffix
             return float(value)
-        return Metric._convert_threshold(value, conversion_factor)
+        return Metric._convert_threshold(value, si_bytes_conversion)
 
     @staticmethod
-    def _parse_threshold(threshold, conversion_factor):
+    def _parse_threshold(threshold, si_bytes_conversion):
         """
         Parse threshold and return the range and whether we alert if value is out of range or in the range.
         See: https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT
@@ -186,20 +196,20 @@ class Metric(object):
                 threshold = threshold[1:]
             if ':' not in threshold:
                 start = 0.0
-                end = Metric._parse_threshold_limit(threshold, False, conversion_factor)
+                end = Metric._parse_threshold_limit(threshold, False, si_bytes_conversion)
             elif threshold.endswith(':'):
-                start = Metric._parse_threshold_limit(threshold[:-1], True, conversion_factor)
+                start = Metric._parse_threshold_limit(threshold[:-1], True, si_bytes_conversion)
                 end = Metric.P_INF
             else:
                 unparsed_start, unparsed_end = threshold.split(':')
-                start = Metric._parse_threshold_limit(unparsed_start, True, conversion_factor)
-                end = Metric._parse_threshold_limit(unparsed_end, False, conversion_factor)
+                start = Metric._parse_threshold_limit(unparsed_start, True, si_bytes_conversion)
+                end = Metric._parse_threshold_limit(unparsed_end, False, si_bytes_conversion)
             return start, end, check_outside_range
         except Exception as exp:
             raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
 
     @staticmethod
-    def _check(value, start, end, check_outside_range):
+    def _check_range(value, start, end, check_outside_range):
         """Check whether the value is inside/outside the range."""
         value, start, end = float(value), float(start), float(end)
         outside_range = value < start or value > end
