@@ -90,7 +90,7 @@ To add metrics to this check, simply use the **add_metric()** method of your **C
 
 ```python
 check.add_metric('disk_usage', 30.5, '%', '70', '90',
-                 display_name='Disk Usage', display_format='{name} is {value}{unit}')
+                 display_name="Disk Usage", display_format='{name} is {value}{unit}')
 ```
 
 The **Metric** objects are then used to create the final output when the **final()** method is called.
@@ -109,9 +109,9 @@ Writing service checks with multiple metrics is easy. Simply create the **Check*
 
 ```python
 check = plugnpy.Check()
-check.add_metric('disk_usage', 30.5, '%', '70', '90', display_name='Disk Usage',
+check.add_metric('disk_usage', 30.5, '%', '70', '90', display_name="Disk Usage",
                  display_format='{name} is {value}{unit}')
-check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name='CPU Usage',
+check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name="CPU Usage",
                  display_format='{name} is {value}{unit}')
 check.final()
 ```
@@ -135,7 +135,7 @@ Adding multiple metrics to the **Check** object would then produce the following
 To apply thresholds to a metric, simply set the threshold values in the **add_metric()** call.
 
 ```python
-check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name='CPU Usage',
+check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name="CPU Usage",
                  display_format="{name} is {value}{unit}")
 ```
 
@@ -143,12 +143,12 @@ This would produce the following output:
 
 `METRIC WARNING - CPU Usage is 70.7% | cpu_usage=70.7%;70;90`
 
-The library supports all nagios threshold definitions as found here: [Nagios Development Guidelines · Nagios Plugins](https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT).
+The library supports all Nagios threshold definitions as found here: [Nagios Development Guidelines · Nagios Plugins](https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT).
 
-As well as being fully compatible with nagios thresholds, plugnpy allows thresholds to be specified in friendly units.
+As well as being fully compatible with Nagios thresholds, plugnpy allows thresholds to be specified in friendly units.
 
 ```python
-check.add_metric('mem_swap', 100, 'B', '10MB', '20MB', display_name='Memory Swap')
+check.add_metric('mem_swap', 100, 'B', '10MB', '20MB', display_name="Memory Swap")
 ```
 
 This would produce the following output:
@@ -162,7 +162,7 @@ To create a check with automatic value conversions, simply call the **add_metric
 **Note**: Setting the **convert_metric** field to **True** will override the unit (displayed in the summary) with the best match for the conversion.
 
 ```python
-check.add_metric('mem_buffer', 1829863424, 'B', '1073741824', '2147483648', display_name='Memory Buffer',
+check.add_metric('mem_buffer', 1829863424, 'B', '1073741824', '2147483648', display_name="Memory Buffer",
                  convert_metric=True)
 ```
 
@@ -175,7 +175,7 @@ All unit conversions are dealt with inside the library (as long as **convert_met
 For metrics with the **unit** set to bytes (**B**), conversions are done based on the International Electrotechnical Commission (IEC) standard, using 1024 as the multiplier. However the library also supports the International System (SI) standard, which uses 1000 as the multiplier, this can be changed by calling **add_metric()**  with the **si_bytes_conversion** field set to **True** (**False** by default).
 
 ```python
-check.add_metric('mem_buffer', 1000, 'B', '1GB', '2GB', display_name='Memory Buffer',
+check.add_metric('mem_buffer', 1000, 'B', '1GB', '2GB', display_name="Memory Buffer",
                  convert_metric=True, si_bytes_conversion=True)
 ```
 
