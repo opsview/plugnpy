@@ -1,6 +1,6 @@
 ## plugnpy tests
 
-### Prequesits
+### Prerequisites
 
 To run these unit tests, [pytest-cov](https://pypi.org/project/pytest-cov/) and [pytest](https://docs.pytest.org/en/latest/contents.html) are required. To quickly install all the required libraries, run the following.
 
