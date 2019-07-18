@@ -33,7 +33,13 @@ class Metric(object):
     SI_UNIT_FACTOR = 1000
     IEC_UNIT_FACTOR = 1024
 
+    UNIT_BITS = 'b'
     UNIT_BYTES = 'B'
+    UNIT_BITS_PS = 'bps'
+    UNIT_BYTES_PS = 'Bps'
+    UNIT_WATTS = 'W'
+    UNIT_HERTZ = 'Hz'
+
     UNIT_PICO = 'p'
     UNIT_NANO = 'n'
     UNIT_MICRO = 'u'
@@ -47,6 +53,10 @@ class Metric(object):
 
     UNIT_PREFIXES_P = (UNIT_EXA, UNIT_PETA, UNIT_TERA, UNIT_GIGA, UNIT_MEGA, UNIT_KILO)
     UNIT_PREFIXES_N = (UNIT_MILLI, UNIT_MICRO, UNIT_NANO, UNIT_PICO)
+
+    CONVERTIBLE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS, UNIT_WATTS, UNIT_HERTZ)
+
+    BYTE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS)
 
     # Prefixes for units
     DISPLAY_UNIT_FACTORS = {
@@ -71,13 +81,14 @@ class Metric(object):
             display_name=None,
             display_in_summary=True,
             display_in_perf=True,
-            convert_metric=False,
+            convert_metric=None,
             si_bytes_conversion=False,
-            precision=2
+            summary_precision=2,
+            perf_data_precision=2
     ):
         self.name = name
-        self.value = value
         self.unit = unit
+        self.value = value
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
         self.display_name = display_name if display_name else self.name
@@ -85,14 +96,31 @@ class Metric(object):
         self.display_in_perf = display_in_perf
         self.display_format = display_format
         self.message = None
-        self.convert_metric = convert_metric
+
+        self.convert_metric = False
+        if convert_metric is not None:
+            self.convert_metric = convert_metric
+        elif unit in Metric.BYTE_UNITS:
+            self.convert_metric = True
+
         self.si_bytes_conversion = si_bytes_conversion
         self.state = Metric.evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion)
 
         try:
-            self.precision = int(precision)
+            self.summary_precision = int(summary_precision)
         except (ValueError, TypeError) as ex:
-            raise Exception("Invalid value for precision '{0}': {1}".format(precision, ex))
+            raise Exception("Invalid value for summary precision '{0}': {1}".format(summary_precision, ex))
+
+        try:
+            self.perf_data_precision = int(perf_data_precision)
+        except (ValueError, TypeError) as ex:
+            raise Exception("Invalid value for performance data precision '{0}': {1}".format(perf_data_precision, ex))
+        try:
+            self.value = float(self.value)
+            self.perf_data = Metric.calculate_perf_data(name, value, unit, warning_threshold, critical_threshold,
+                                                        precision=self.perf_data_precision)
+        except (ValueError, TypeError):
+            self.perf_data = ''
 
     def __str__(self):
         if self.message:
@@ -101,16 +129,18 @@ class Metric(object):
         value = self.value
 
         if self.convert_metric:
-            value, unit = Metric.convert_value(self.value, self.unit, self.si_bytes_conversion)
+            value, unit = Metric.convert_value(self.value, self.unit, si_bytes_conversion=self.si_bytes_conversion)
 
         # try to convert value to precision specified if it's a number
         try:
             value = float(value)
-            value = "{0:.{1}f}".format(value, self.precision)
+            value = "{0:.{1}f}".format(value, self.summary_precision)
         except (ValueError, TypeError):
             pass
 
-        return self.display_format.format(**{'name': self.display_name, 'value': value, 'unit': unit})
+        return self.display_format.format(**{'name': self.display_name,
+                                             'value': value,
+                                             'unit': unit})
 
     @staticmethod
     def evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion=False):
@@ -125,6 +155,15 @@ class Metric(object):
         return status
 
     @staticmethod
+    def calculate_perf_data(name, value, unit, warning_threshold, critical_threshold, precision=2):
+        value = '{0:.{1}f}'.format(value, precision)
+        return "{0}={1}{2}{3}{4}{5}{6}".format(
+            "'{0}'".format(name) if ' ' in name else name, value, unit,
+            ';' if warning_threshold or critical_threshold else '', warning_threshold,
+            ';' if warning_threshold or critical_threshold else '', critical_threshold
+        )
+
+    @staticmethod
     def convert_value(value, unit, si_bytes_conversion=False):
         """Converts values with the right prefix for display."""
         try:
@@ -132,18 +171,18 @@ class Metric(object):
         except (ValueError, TypeError) as ex:
             raise Exception("Invalid value for value '{0}': {1}".format(value, ex))
 
-        conversion_factor = Metric._get_conversion_factor(unit, si_bytes_conversion)
-        keys = Metric.UNIT_PREFIXES_N if unit != Metric.UNIT_BYTES and value < 1 else Metric.UNIT_PREFIXES_P
-
-        for key in keys:
-            multiplication_factor = Metric.DISPLAY_UNIT_FACTORS[key](conversion_factor)
-            if 1.0 / multiplication_factor <= value:
-                return value * multiplication_factor, '{0}{1}'.format(key, unit)
+        if unit in Metric.CONVERTIBLE_UNITS:
+            conversion_factor = Metric._get_conversion_factor(unit, si_bytes_conversion)
+            keys = Metric.UNIT_PREFIXES_N if unit not in Metric.BYTE_UNITS and value < 1 else Metric.UNIT_PREFIXES_P
+            for key in keys:
+                multiplication_factor = Metric.DISPLAY_UNIT_FACTORS[key](conversion_factor)
+                if 1.0 / multiplication_factor <= value:
+                    return value * multiplication_factor, '{0}{1}'.format(key, unit)
         return value, unit
 
     @staticmethod
     def _get_conversion_factor(unit, si_bytes_conversion):
-        if unit == Metric.UNIT_BYTES and not si_bytes_conversion:
+        if unit in Metric.BYTE_UNITS and not si_bytes_conversion:
             return Metric.IEC_UNIT_FACTOR
         return Metric.SI_UNIT_FACTOR
 

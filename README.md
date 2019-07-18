@@ -103,6 +103,17 @@ This would produce the following output:
 
 `METRIC OK - Disk Usage is 30.5% | disk_usage=30.5%;70;90`
 
+You can also specify the precision of the value in the summary and the performance data that you want to output, by using the **summary_precision** and **perf_data_precision** parameters when adding metrics (default is 2 decimal places):
+
+```python
+check.add_metric('disk_usage', 30.55432, '%', '70', '90',
+                 display_name="Disk Usage", display_format='{name} is {value}{unit}', summary_precision=2, perf_data_precision=4)
+```
+This would produce the following output:
+
+`METRIC OK - Disk Usage is 30.55% | disk_usage=30.5543%;70;90`
+
+
 ## Writing checks with multiple metrics
 
 Writing service checks with multiple metrics is easy. Simply create the **Check** object and add multiple metrics using the **add_metric()** method.
@@ -130,7 +141,7 @@ Adding multiple metrics to the **Check** object would then produce the following
 
 `METRIC OK - Disk Usage is 30.5% CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
 
-### Checks with thresholds
+## Checks with thresholds
 
 To apply thresholds to a metric, simply set the threshold values in the **add_metric()** call.
 
@@ -155,20 +166,39 @@ This would produce the following output:
 
 `METRIC OK - Memory Swap is 100B | mem_swap=100B;10MB;20MB`
 
-### Checks with automatic conversions
+## Checks with automatic conversions
 
-To create a check with automatic value conversions, simply call the **add_metric()** method with the **convert_metric** field set to **True**.
+To create a check with automatic value conversions, simply call the **add_metric()** method with the **convert_metric** field set to **True**. 
+The unit passed in should not have any existing prefix - for example, pass your value in '**B'** rather than '**KB**' or '**MB**'.
 
-**Note**: Setting the **convert_metric** field to **True** will override the unit (displayed in the summary) with the best match for the conversion.
+Setting the **convert_metric** field to **True** will override the unit (displayed in the summary) with the best match for the conversion. 
+By default, **convert_metric** is set to **True** only for metrics in **B**, **b**, **Bps** and **bps**.
 
+The units supporting conversions are as follows:
+
+|Unit          |Supported conversion prefixes   |
+|:-------------|:-------------------------------|
+|s             |p, n, u, m                      |
+|B, b, Bps, bps|K, M, G, T, P, E                |
+|W, Hz         |p, n, u, m, K, M, G, T, P, E    |
+
+
+**Examples:**
 ```python
 check.add_metric('mem_buffer', 1829863424, 'B', '1073741824', '2147483648', display_name="Memory Buffer",
                  convert_metric=True)
 ```
-
-This would produce the following output:
+Would produce the following output:
 
 `METRIC WARNING - Memory Buffer is 1.70GB | mem_buffer=1829904384B;1073741824;2147483648`
+
+```python
+check.add_metric('mem_buffer', 0.0002, 's', '0.0004', '0.0007', display_name="Latency",
+                 convert_metric=True)
+```
+Would produce the following output:
+
+`METRIC WARNING - Latency is 0.2ms | mem_buffer=0.0002s;0.0004;0.0007`
 
 All unit conversions are dealt with inside the library (as long as **convert_metric** is set to **True**), allowing values to be entered without having to do any manual conversions.
 
@@ -181,7 +211,7 @@ check.add_metric('mem_buffer', 1000, 'B', '1GB', '2GB', display_name="Memory Buf
 
 This would produce the following output:
 
-`METRIC OK - Memory Buffer is 1KB | mem_buffer=1000;1GB;2GB`
+`METRIC OK - Memory Buffer is 1KB | mem_buffer=1000B;1GB;2GB`
 
 
 For metrics using any other unit, conversions are done using the SI standard (1000 as the multiplier).
@@ -204,7 +234,7 @@ The **convert_value()** method converts a given value and unit to a more human f
 value, unit = metric.convert_value(2048, 'B')
 ```
 
-The above example would return '`2.00`' as the value and '`KB`' as the unit.
+The above example would return '`2.00`' as the value and '`KB`' as the unit. You can also specify the **precision** argument to set the number of desired decimal places - the default is 2.
 
 Both methods support the **si_bytes_conversion** field. See [**Checks with automatic conversions**](#checks-with-automatic-conversions) above for more details.
 

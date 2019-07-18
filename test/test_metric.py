@@ -72,15 +72,20 @@ def test_check_range(value, start, end, check_outside_range, expected):
     (1e18, 'B', True, False, (1.0, 'EB')),
 
     # conversion SI units
+    (1, 'W', True, False, (1.0, 'W')),
+    (1e-3, 'Hz', True, False, (1.0, 'mHz')),
+    (1e-6, 'W', True, False, (1.0, 'uW')),
+    (1e-9, 'Hz', True, False, (1.0, 'nHz')),
+    (1e-12, 'W', True, False, (1.0, 'pW')),
+    (1e3, 'Hz', True, False, (1.0, 'KHz')),
+    (1e6, 'W', True, False, (1.0, 'MW')),
+    (1e9, 'Hz', True, False, (1.0, 'GHz')),
+    (1e12, 'W', True, False, (1.0, 'TW')),
+
+    # no conversion
     (1, '', True, False, (1.0, '')),
-    (1e-3, '', True, False, (1.0, 'm')),
-    (1e-6, '', True, False, (1.0, 'u')),
-    (1e-9, '', True, False, (1.0, 'n')),
-    (1e-12, '', True, False, (1.0, 'p')),
-    (1e3, '', True, False, (1.0, 'K')),
-    (1e6, '', True, False, (1.0, 'M')),
-    (1e9, '', True, False, (1.0, 'G')),
-    (1e12, '', True, False, (1.0, 'T')),
+    (1e3, '', True, False, (1000, '')),
+    (1e-3, '', True, False, (0.001, '')),
 
     # invalid value
     ('a', '', True, Exception, None),
@@ -156,11 +161,29 @@ def test_parse_threshold(threshold, raises, expected):
 def test_state(warning_threshold, critical_threshold, expected):
     assert Metric('Memory', 100, 'bytes', warning_threshold, critical_threshold).state == expected
 
-def test_precision():
-    metric = Metric('metric_name', 10.12345, 'B', precision=3)
+def test_summary_precision():
+    metric = Metric('metric_name', 10.12345, 'B', summary_precision=3, perf_data_precision=2)
     assert '10.123' in str(metric)
+    assert '10.12' in str(metric.perf_data)
     assert '10.12345' not in str(metric)
+    assert '10.123' not in str(metric.perf_data)
 
+@pytest.mark.parametrize('value, error_msg',
+                         [(None, "Invalid value for performance data precision 'None': "
+                                 "int() argument must be a string or a number, not 'NoneType'"),
+                          ('abc', "Invalid value for performance data precision 'abc': "
+                                  "invalid literal for int() with base 10: 'abc'")])
+def test_invalid_perf_data_precision(value, error_msg):
     with pytest.raises(Exception) as ex:
-        Metric('metric_name', 10.12345, 'B', precision='a')
-        assert "Invalid value for precision" in ex.value
+        Metric('metric_name', 10.12345, 'B', perf_data_precision=value)
+    assert str(ex.value) == error_msg
+
+@pytest.mark.parametrize('value, error_msg',
+                         [(None, "Invalid value for summary precision 'None': "
+                                 "int() argument must be a string or a number, not 'NoneType'"),
+                          ('abc', "Invalid value for summary precision 'abc': "
+                                  "invalid literal for int() with base 10: 'abc'")])
+def test_invalid_summary_precision(value, error_msg):
+    with pytest.raises(Exception) as ex:
+        Metric('metric_name', 10.12345, 'B', summary_precision=value)
+    assert str(ex.value) == error_msg
