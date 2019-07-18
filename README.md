@@ -101,17 +101,17 @@ check.final()
 
 This would produce the following output:
 
-`METRIC OK - Disk Usage is 30.5% | disk_usage=30.5%;70;90`
+`METRIC OK - Disk Usage is 30.50% | disk_usage=30.50%;70;90`
 
 You can also specify the precision of the value in the summary and the performance data that you want to output, by using the **summary_precision** and **perf_data_precision** parameters when adding metrics (default is 2 decimal places):
 
 ```python
 check.add_metric('disk_usage', 30.55432, '%', '70', '90',
-                 display_name="Disk Usage", display_format='{name} is {value}{unit}', summary_precision=2, perf_data_precision=4)
+                 display_name="Disk Usage", display_format='{name} is {value}{unit}', summary_precision=3, perf_data_precision=4)
 ```
 This would produce the following output:
 
-`METRIC OK - Disk Usage is 30.55% | disk_usage=30.5543%;70;90`
+`METRIC OK - Disk Usage is 30.554% | disk_usage=30.5543%;70;90`
 
 
 ## Writing checks with multiple metrics
@@ -129,7 +129,7 @@ check.final()
 
 This would produce the following output:
 
-`METRIC WARNING - Disk Usage is 30.5%, CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
+`METRIC WARNING - Disk Usage is 30.50%, CPU Usage is 70.70% | disk_usage=30.50%;70;90 cpu_usage=70.70%;70;90`
 
 When adding multiple metrics, the separator between metrics can be customised. By default this is set to `', '` but can easily be changed by setting the **sep** field when creating the **Check** object.
 
@@ -139,7 +139,7 @@ check = plugnpy.Check(sep=' ')
 
 Adding multiple metrics to the **Check** object would then produce the following output:
 
-`METRIC OK - Disk Usage is 30.5% CPU Usage is 70.7% | disk_usage=30.5%;70;90 cpu_usage=70.7%;70;90`
+`METRIC OK - Disk Usage is 30.50% CPU Usage is 70.70% | disk_usage=30.5%;70;90 cpu_usage=70.70%;70;90`
 
 ## Checks with thresholds
 
@@ -152,7 +152,7 @@ check.add_metric('cpu_usage', 70.7, '%', '70', '90', display_name="CPU Usage",
 
 This would produce the following output:
 
-`METRIC WARNING - CPU Usage is 70.7% | cpu_usage=70.7%;70;90`
+`METRIC WARNING - CPU Usage is 70.70% | cpu_usage=70.70%;70;90`
 
 The library supports all Nagios threshold definitions as found here: [Nagios Development Guidelines · Nagios Plugins](https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT).
 
@@ -164,7 +164,7 @@ check.add_metric('mem_swap', 100, 'B', '10MB', '20MB', display_name="Memory Swap
 
 This would produce the following output:
 
-`METRIC OK - Memory Swap is 100B | mem_swap=100B;10MB;20MB`
+`METRIC OK - Memory Swap is 100.00B | mem_swap=100.00B;10MB;20MB`
 
 ## Checks with automatic conversions
 
@@ -190,11 +190,11 @@ check.add_metric('mem_buffer', 1829863424, 'B', '1073741824', '2147483648', disp
 ```
 Would produce the following output:
 
-`METRIC WARNING - Memory Buffer is 1.70GB | mem_buffer=1829904384B;1073741824;2147483648`
+`METRIC WARNING - Memory Buffer is 1.70GB | mem_buffer=1829904384.00B;1073741824;2147483648`
 
 ```python
 check.add_metric('mem_buffer', 0.0002, 's', '0.0004', '0.0007', display_name="Latency",
-                 convert_metric=True)
+                 convert_metric=True, summary_precision=1, perf_data_precision=4)
 ```
 Would produce the following output:
 
@@ -206,12 +206,12 @@ For metrics with the **unit** set to bytes (**B**), conversions are done based o
 
 ```python
 check.add_metric('mem_buffer', 1000, 'B', '1GB', '2GB', display_name="Memory Buffer",
-                 convert_metric=True, si_bytes_conversion=True)
+                 convert_metric=True, si_bytes_conversion=True, summary_precision=0)
 ```
 
 This would produce the following output:
 
-`METRIC OK - Memory Buffer is 1KB | mem_buffer=1000B;1GB;2GB`
+`METRIC OK - Memory Buffer is 1KB | mem_buffer=1000.00B;1GB;2GB`
 
 
 For metrics using any other unit, conversions are done using the SI standard (1000 as the multiplier).
@@ -234,8 +234,7 @@ The **convert_value()** method converts a given value and unit to a more human f
 value, unit = metric.convert_value(2048, 'B')
 ```
 
-The above example would return '`2.00`' as the value and '`KB`' as the unit. You can also specify the **precision** argument to set the number of desired decimal places - the default is 2.
-
+The above example would return '`2.00`' as the value and '`KB`' as the unit.
 Both methods support the **si_bytes_conversion** field. See [**Checks with automatic conversions**](#checks-with-automatic-conversions) above for more details.
 
 ## Using the Argument Parser
