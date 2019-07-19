@@ -180,10 +180,10 @@ def test_invalid_perf_data_precision(value, error_msg):
 
 @pytest.mark.parametrize('value, error_msg',
                          [(None, "Invalid value for summary precision 'None': "
-                                 "int() argument must be a string or a number, not 'NoneType'"),
+                                 "int() argument must be a string"),
                           ('abc', "Invalid value for summary precision 'abc': "
                                   "invalid literal for int() with base 10: 'abc'")])
 def test_invalid_summary_precision(value, error_msg):
     with pytest.raises(Exception) as ex:
         Metric('metric_name', 10.12345, 'B', summary_precision=value)
-    assert str(ex.value) == error_msg
+    assert error_msg in str(ex.value)
