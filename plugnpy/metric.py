@@ -39,6 +39,7 @@ class Metric(object):
     UNIT_BYTES_PS = 'Bps'
     UNIT_WATTS = 'W'
     UNIT_HERTZ = 'Hz'
+    UNIT_SECONDS = 's'
 
     UNIT_PICO = 'p'
     UNIT_NANO = 'n'
@@ -54,7 +55,7 @@ class Metric(object):
     UNIT_PREFIXES_P = (UNIT_EXA, UNIT_PETA, UNIT_TERA, UNIT_GIGA, UNIT_MEGA, UNIT_KILO)
     UNIT_PREFIXES_N = (UNIT_MILLI, UNIT_MICRO, UNIT_NANO, UNIT_PICO)
 
-    CONVERTIBLE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS, UNIT_WATTS, UNIT_HERTZ)
+    CONVERTIBLE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS, UNIT_WATTS, UNIT_HERTZ, UNIT_SECONDS)
 
     BYTE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS)
 
@@ -87,21 +88,17 @@ class Metric(object):
             perf_data_precision=2
     ):
         self.name = name
-        self.unit = unit
         self.value = value
+        self.unit = unit
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
+        self.display_format = display_format
         self.display_name = display_name if display_name else self.name
         self.display_in_summary = display_in_summary
         self.display_in_perf = display_in_perf
-        self.display_format = display_format
         self.message = None
 
-        self.convert_metric = False
-        if convert_metric is not None:
-            self.convert_metric = convert_metric
-        elif unit in Metric.BYTE_UNITS:
-            self.convert_metric = True
+        self.convert_metric = convert_metric or (convert_metric is None and unit in Metric.BYTE_UNITS)
 
         self.si_bytes_conversion = si_bytes_conversion
         self.state = Metric.evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion)
@@ -173,7 +170,15 @@ class Metric(object):
 
         if unit in Metric.CONVERTIBLE_UNITS:
             conversion_factor = Metric._get_conversion_factor(unit, si_bytes_conversion)
-            keys = Metric.UNIT_PREFIXES_N if unit not in Metric.BYTE_UNITS and value < 1 else Metric.UNIT_PREFIXES_P
+
+            keys = []
+            if value < 1:
+                if unit in (Metric.UNIT_SECONDS, Metric.UNIT_HERTZ, Metric.UNIT_WATTS):
+                    keys = Metric.UNIT_PREFIXES_N
+            # value > 1
+            elif unit in Metric.BYTE_UNITS or unit in (Metric.UNIT_HERTZ, Metric.UNIT_WATTS):
+                keys = Metric.UNIT_PREFIXES_P
+
             for key in keys:
                 multiplication_factor = Metric.DISPLAY_UNIT_FACTORS[key](conversion_factor)
                 if 1.0 / multiplication_factor <= value:

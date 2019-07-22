@@ -64,6 +64,7 @@ def test_check_range(value, start, end, check_outside_range, expected):
 
     # bytes conversion SI (International System) units
     (1, 'B', True, False, (1.0, 'B')),
+    (1e-3, 'B', True, False, (0.001, 'B')),
     (1e3, 'B', True, False, (1.0, 'KB')),
     (1e6, 'B', True, False, (1.0, 'MB')),
     (1e9, 'B', True, False, (1.0, 'GB')),
@@ -76,11 +77,11 @@ def test_check_range(value, start, end, check_outside_range, expected):
     (1e-3, 'Hz', True, False, (1.0, 'mHz')),
     (1e-6, 'W', True, False, (1.0, 'uW')),
     (1e-9, 'Hz', True, False, (1.0, 'nHz')),
-    (1e-12, 'W', True, False, (1.0, 'pW')),
+    (1e-12, 's', True, False, (1.0, 'ps')),
     (1e3, 'Hz', True, False, (1.0, 'KHz')),
     (1e6, 'W', True, False, (1.0, 'MW')),
     (1e9, 'Hz', True, False, (1.0, 'GHz')),
-    (1e12, 'W', True, False, (1.0, 'TW')),
+    (1e12, 's', True, False, (1000000000000.0, 's')),
 
     # no conversion
     (1, '', True, False, (1.0, '')),
