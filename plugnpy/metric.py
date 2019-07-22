@@ -40,6 +40,7 @@ class Metric(object):
     UNIT_WATTS = 'W'
     UNIT_HERTZ = 'Hz'
     UNIT_SECONDS = 's'
+    UNIT_COUNT = 'c'
 
     UNIT_PICO = 'p'
     UNIT_NANO = 'n'
