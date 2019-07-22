@@ -173,9 +173,8 @@ class Metric(object):
             conversion_factor = Metric._get_conversion_factor(unit, si_bytes_conversion)
 
             keys = []
-            if value < 1:
-                if unit in Metric.CONVERTIBLE_UNITS_N:
-                    keys = Metric.UNIT_PREFIXES_N
+            if value < 1 and unit in Metric.CONVERTIBLE_UNITS_N:
+                keys = Metric.UNIT_PREFIXES_N
             elif value > 1 and unit in Metric.CONVERTIBLE_UNITS_P:
                 keys = Metric.UNIT_PREFIXES_P
 
