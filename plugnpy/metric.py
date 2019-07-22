@@ -55,9 +55,10 @@ class Metric(object):
     UNIT_PREFIXES_P = (UNIT_EXA, UNIT_PETA, UNIT_TERA, UNIT_GIGA, UNIT_MEGA, UNIT_KILO)
     UNIT_PREFIXES_N = (UNIT_MILLI, UNIT_MICRO, UNIT_NANO, UNIT_PICO)
 
-    CONVERTIBLE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS, UNIT_WATTS, UNIT_HERTZ, UNIT_SECONDS)
-
     BYTE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS)
+    CONVERTIBLE_UNITS_P = BYTE_UNITS + (UNIT_HERTZ, UNIT_WATTS)
+    CONVERTIBLE_UNITS_N = (UNIT_SECONDS, UNIT_HERTZ, UNIT_WATTS)
+    CONVERTIBLE_UNITS = CONVERTIBLE_UNITS_P + CONVERTIBLE_UNITS_N
 
     # Prefixes for units
     DISPLAY_UNIT_FACTORS = {
@@ -173,10 +174,9 @@ class Metric(object):
 
             keys = []
             if value < 1:
-                if unit in (Metric.UNIT_SECONDS, Metric.UNIT_HERTZ, Metric.UNIT_WATTS):
+                if unit in Metric.CONVERTIBLE_UNITS_N:
                     keys = Metric.UNIT_PREFIXES_N
-            # value > 1
-            elif unit in Metric.BYTE_UNITS or unit in (Metric.UNIT_HERTZ, Metric.UNIT_WATTS):
+            elif value > 1 and unit in Metric.CONVERTIBLE_UNITS_P:
                 keys = Metric.UNIT_PREFIXES_P
 
             for key in keys:
