@@ -2,12 +2,33 @@
 Argument Parser class for use in service checks.
 Based on argparse.ArgumentParser but overwrites exiting calls to exit Unknowns.
 """
-from argparse import ArgumentParser
+import argparse
 from gettext import gettext
 import sys
 
 
-class Parser(ArgumentParser):
+class _HelpAction(argparse.Action):
+    def __init__(self,
+                 option_strings,
+                 dest=argparse.SUPPRESS,
+                 default=argparse.SUPPRESS,
+                 help=None):
+        super(_HelpAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.print_help()
+        parser.exit(3)
+
+
+argparse._HelpAction = _HelpAction
+
+
+class Parser(argparse.ArgumentParser):
     """Object for parsing command line strings into Python objects.
     Modified to exit with Opsview specific exits.
 

@@ -47,7 +47,7 @@ if __name__ == "__main__":
         memory_usage = get_mem_usage()
         # Add Metrics to Check Object
         check.add_metric('mem_utilisation', memory_usage.percent, '%', None, None,
-                         display_name="Memory Utilisation", msg_fmt="{name} at {value}{unit}")
+                         display_name="Memory Utilisation", display_format="{name} at {value}{unit}")
         check.add_metric('mem_buffer', memory_usage.buffers, 'B', args.warning, args.critical,
                          display_name="Memory Buffer", convert_metric=True)
         check.add_metric('mem_cache', memory_usage.cached, 'B', '', '',
@@ -55,7 +55,8 @@ if __name__ == "__main__":
         check.add_metric('mem_free', memory_usage.free, 'B', '', '',
                          convert_metric=True, display_in_summary=False)
         check.add_metric('test', None, '', '', '',
-                         msg_fmt="An example of adding a dummy metric to add another line", display_in_perf=False)
+                         display_format="An example of adding a dummy metric to add another line",
+                         display_in_perf=False)
     elif args.mode == "swap_usage":
         swap_usage = get_swap_usage()
         check.add_metric('swap_utilisation', swap_usage.percent, '%', args.warning, args.critical)
