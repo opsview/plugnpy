@@ -143,7 +143,7 @@ class Metric(object):
 
     @staticmethod
     def evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion=False):
-        """return the status code of a service check given the value, warning and critical thresholds"""
+        """Returns the status code of a check obtained by evaluating the value against warning and critical thresholds"""
         status = Metric.STATUS_OK
         if warning_threshold:
             if Metric._check_range(value, *Metric._parse_threshold(warning_threshold, si_bytes_conversion)):
@@ -155,6 +155,7 @@ class Metric(object):
 
     @staticmethod
     def calculate_perf_data(name, value, unit, warning_threshold, critical_threshold, precision=2):
+        """Returns the perf data string for the check"""
         value = '{0:.{1}f}'.format(value, precision)
         return "{0}={1}{2}{3}{4}{5}{6}".format(
             "'{0}'".format(name) if ' ' in name else name, value, unit,

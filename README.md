@@ -78,15 +78,10 @@ This will create a `plugnpy-VERSION.RELEASE.tar.gz` file in the `dist` directory
 
 ## Writing Checks
 
-To start writing plugins with **plugnpy** import the library at the top of your script.
-
-```python
-import plugnpy
-```
-
 The core of a check written using plugnpy is the **Check** object. A **Check** object must be instantiated before metrics can be defined.
 
 ```python
+import plugnpy
 check = plugnpy.Check()
 ```
 
@@ -159,15 +154,15 @@ This would produce the following output:
 
 `METRIC WARNING - Disk Usage is 30.50%, CPU Usage is 70.70% | disk_usage=30.50%;70;90 cpu_usage=70.70%;70;90`
 
-When adding multiple metrics, the separator between metrics can be customised. By default this is set to `', '` but can easily be changed by setting the **sep** field when creating the **Check** object.
+When adding multiple metrics, the separator between metrics can be customised. By default this is set to `', '` but can easily be changed or removed by setting the **sep** field when creating the **Check** object.
 
 ```python
-check = plugnpy.Check(sep=' x ')
+check = plugnpy.Check(sep=' + ')
 ```
 
 Adding multiple metrics to the **Check** object would then produce the following output:
 
-`METRIC OK - Disk Usage is 30.50% x CPU Usage is 70.70% | disk_usage=30.5%;70;90 cpu_usage=70.70%;70;90`
+`METRIC OK - Disk Usage is 30.50% + CPU Usage is 70.70% | disk_usage=30.5%;70;90 cpu_usage=70.70%;70;90`
 
 ## Checks with automatic conversions
 
@@ -187,7 +182,7 @@ The supported conversion prefixes are:
 |giga        |G              | 1000<sup>3</sup>  |
 |mega        |M              | 1000<sup>2</sup>  |
 |kilo        |K              | 1000<sup>1</sup>  |
-|mili        |m              | 1000<sup>-1</sup> |
+|milli       |m              | 1000<sup>-1</sup> |
 |micro       |u              | 1000<sup>-2</sup> |
 |nano        |n              | 1000<sup>-3</sup> |
 |pico        |p              | 1000<sup>-4</sup> |
@@ -202,7 +197,8 @@ The units supporting these prefixes are as follows:
 |W, Hz         |p, n, u, m, K, M, G, T, P, E    |
 
 
-**Examples:**
+For example, adding the metric:
+
 ```python
 check.add_metric('mem_buffer', 1829863424, 'B', '1073741824', '2147483648',
                  display_name="Memory Buffer", convert_metric=True)
@@ -210,6 +206,8 @@ check.add_metric('mem_buffer', 1829863424, 'B', '1073741824', '2147483648',
 Would produce the following output:
 
 `METRIC WARNING - Memory Buffer is 1.70GB | mem_buffer=1829904384.00B;1073741824;2147483648`
+
+And adding the metric below:
 
 ```python
 check.add_metric('latency', 0.0002, 's', '0.0004', '0.0007', display_name="Latency",
@@ -221,7 +219,7 @@ Would produce the following output:
 
 All unit conversions are dealt with inside the library (as long as **convert_metric** is set to **True**), allowing values to be entered without having to do any manual conversions.
 
-For metrics with the **unit** set to bytes (**B**, **b**, **Bps** or **bps**), conversions are done based on the International Electrotechnical Commission (IEC) standard, using 1024 as the base multiplier. However the library also supports the International System (SI) standard, which uses 1000 as the base multiplier, this can be changed by calling **add_metric()**  with the **si_bytes_conversion** field set to **True** (**False** by default).
+For metrics with the **unit** related to bytes (**B**, **b**, **Bps** or **bps**), conversions are done based on the International Electrotechnical Commission (IEC) standard, using 1024 as the base multiplier. However the library also supports the International System (SI) standard, which uses 1000 as the base multiplier, this can be changed by calling **add_metric()**  with the **si_bytes_conversion** field set to **True** (**False** by default).
 
 ```python
 check.add_metric('mem_buffer', 1000, 'B', '1GB', '2GB', display_name="Memory Buffer",
@@ -279,7 +277,7 @@ To use the parser, create an object of type **plugnpy.Parser** and use as you wo
 
 ## Using the Exceptions
 
-**plugnpy** comes with its own **Exception** objects. They have no special implementation beyond their names and can be found in **plugnpy.Exceptions**. To be consistent, here are the appropriate times to raise each exception.
+**plugnpy** comes with its own **Exception** objects. They have no special implementation beyond their names and can be found in **plugnpy.Exceptions**. To be consistent, here are the appropriate times to raise each exception:
 
 | Exception              | Usage                                                                                                                                                                |
 |------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
