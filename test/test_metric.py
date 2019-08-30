@@ -188,3 +188,9 @@ def test_invalid_summary_precision(value, error_msg):
     with pytest.raises(Exception) as ex:
         Metric('metric_name', 10.12345, 'B', summary_precision=value)
     assert error_msg in str(ex.value)
+
+
+def test_perf_data_type_conversion():
+    metric = Metric('metric_name', '1', 'B')
+    assert 'metric_name=1.00B' in str(metric.perf_data)
+

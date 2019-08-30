@@ -116,8 +116,9 @@ class Metric(object):
             raise Exception("Invalid value for performance data precision '{0}': {1}".format(perf_data_precision, ex))
         try:
             self.value = float(self.value)
-            self.perf_data = Metric.calculate_perf_data(name, value, unit, warning_threshold, critical_threshold,
-                                                        precision=self.perf_data_precision)
+            self.perf_data = Metric.calculate_perf_data(
+                name, self.value, unit, warning_threshold, critical_threshold,
+                precision=self.perf_data_precision)
         except (ValueError, TypeError):
             self.perf_data = ''
 
