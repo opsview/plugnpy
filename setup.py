@@ -6,7 +6,6 @@ from os.path import dirname, join
 from subprocess import call
 from setuptools import Command, find_packages, setup
 from plugnpy import __version__ as VERSION
-from plugnpy import __release__ as RELEASE
 
 
 def read(fname):
@@ -39,7 +38,7 @@ class RunTests(Command):
 
 setup(
     name='plugnpy',
-    version=VERSION + '.' + RELEASE,
+    version=VERSION,
     description='A Simple Python Library for creating Opsview Opspack plugins',
     long_description=read('README.md'),
     url='https://github.com/opsview/plugnpy',
@@ -57,7 +56,7 @@ setup(
     keywords='plugnpy',
     packages=['plugnpy'],
     data_files=[
-        ('info', ['VERSION', 'RELEASE', 'LICENSE', 'README.md'])
+        ('info', ['VERSION', 'LICENSE', 'README.md'])
     ],
     install_requires=[],
     extras_require={

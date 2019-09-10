@@ -73,7 +73,7 @@ or
 make wheel
 ```
 
-This will create a `plugnpy-VERSION.RELEASE.tar.gz` file in the `dist` directory which can be installed in the same way as the prepackaged one above.
+This will create a `plugnpy-VERSION.tar.gz` file in the `dist` directory which can be installed in the same way as the prepackaged one above.
 
 
 ## Writing Checks

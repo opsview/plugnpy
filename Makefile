@@ -26,9 +26,6 @@ PROJECT=plugnpy
 # Project version
 VERSION=$(shell cat VERSION)
 
-# Project release number (packaging build number)
-RELEASE=$(shell cat RELEASE)
-
 # Name of RPM or DEB package
 PKGNAME=${VENDOR}-${PROJECT}
 
@@ -71,9 +68,7 @@ all: help
 # Set the version from VERSION file
 version:
 	sed -i "s/version:.*$$/version: $(VERSION)/" conda/meta.yaml
-	sed -i "s/number:.*$$/number: $(RELEASE)/" conda/meta.yaml
 	sed -i "s/__version__.*$$/__version__ = '$(VERSION)'/" plugnpy/__init__.py
-	sed -i "s/__release__.*$$/__release__ = '$(RELEASE)'/" plugnpy/__init__.py
 
 # Build minimal Conda environment
 conda:
