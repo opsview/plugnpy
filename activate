@@ -1,4 +1,0 @@
-#!/bin/false
-
-source ../env-dev-plugnpy/bin/activate
-python setup.py develop

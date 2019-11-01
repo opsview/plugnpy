@@ -67,6 +67,7 @@ def test_final(capsys):
         )
     )
 
+
 def test_final_with_message(capsys):
     check = Check()
     check.add_metric('Memory', 4500000, 'B', '4M:', '6M:', convert_metric=True, perf_data_precision=3)

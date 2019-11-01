@@ -7,7 +7,7 @@
 [![Master Coverage Status](https://coveralls.io/repos/opsview/plugnpy/badge.svg?branch=master&service=github)](https://coveralls.io/github/opsview/plugnpy?branch=master)
 
 * **category**    Libraries
-* **copyright**   2018-2019 Opsview Ltd
+* **copyright**   2003-2019 Opsview Ltd
 * **license**     Apache License Version 2.0 (see [LICENSE](LICENSE))
 * **link**        https://github.com/opsview/plugnpy
 
@@ -37,44 +37,27 @@ To see all available options:
 make help
 ```
 
-To build a Conda development environment:
+To create a development environment:
 ```
-make conda_dev
-. activate
+make venv
 ```
 
-To test inside a `conda_dev` environment using setuptools:
+To run the tests in the development environment:
 ```
 make test
 ```
 
-To build and test the project inside a Conda environment:
-```
-make build
-```
-
-The coverage report is available at:
-```
-env-~#PROJECT#~/conda-bld/coverage/htmlcov/index.html
-```
-
-
-## Building the Library
-
-Should you wish (or if you've made improvements to the source code and you want to use them), the library can be built with the following command.
-
-```
-python setup.py sdist
-```
-
-or
-
+To build the library in the development environment:
 ```
 make wheel
 ```
 
 This will create a `plugnpy-VERSION.tar.gz` file in the `dist` directory which can be installed in the same way as the prepackaged one above.
 
+The coverage report is available at:
+```
+htmlcov/index.html
+```
 
 ## Writing Checks
 
@@ -286,3 +269,97 @@ To use the parser, create an object of type **plugnpy.Parser** and use as you wo
 | AssumedOK              | To be thrown when the status of the check cannot be identified. This is usually used when the check requires the result of a previous run and this is the first run. |
 | InvalidMetricThreshold | This shouldn't be thrown in a plugin. It is used internally in checks.py when an invalid metric threshold is passed in.                                              |
 | InvalidMetricName      | This shouldn't be thrown in a plugin. It is used internally in checks.py when an invalid metric name is passed in.                                              |
+
+## Cache Manager client
+
+**plugnpy** comes with an http client which is able to connect to the opsview-cachemanager component.
+This allows the plugins to use the cache manager to store temporary data into memory which can be consumed by other
+servicechecks which require the same data.
+
+The module consists of two classes, namely **CacheManagerClient** and **CacheManagerUtils**, which provide easy to use
+interfaces to communicate with the opsview-cachemanager.
+
+### CacheManagerClient
+A simple client to set or get cached data from the cache manager.
+
+The cache manager client requires the **namespace** of the plugin and the **host** ip and **port** of the cache manager
+to be supplied. These are provided to the plugin as opsview-executor encrypted environment variables.
+
+```python
+host = os.environ.get('OPSVIEW_CACHE_MANAGER_HOST')
+port = os.environ.get('OPSVIEW_CACHE_MANAGER_PORT')
+namespace = os.environ.get('OPSVIEW_CACHE_MANAGER_NAMESPACE')
+```
+
+A cache manager client can then be created:
+```python
+client = CacheManagerClient(host, port, namespace)
+```
+
+Items inserted into the cache manager are namespaced, ensuring naming collisions are avoided and potentially sensitive
+data cannot be read by other unauthorized plugins.
+
+Optionally, when creating the client, the **concurrency**, **connection_timeout** and **network_timeout** parameters can
+be specified to modify the number of concurrent http connection allowed (default: 1), the number of seconds before the
+HTTP connection times out (default: 30) and the number of seconds before the data read times out (default: 30),
+respectively.
+
+```python
+client = CacheManagerClient(host, port, namespace, concurrency=1, connection_timeout=30,
+                            network_timeout=30)
+```
+Once a cache manager client has been created, the **get_data** and **set_data** methods can be used to get and set data
+respectively.
+
+The **set_data** method can be called with the **key** and **data** parameters, this will store the specified data,
+under the given key. Optionally, the **ttl** parameter can be used to specify the number of seconds the data is valid
+for (default: 900). It is expected that session information and other temporary data will be stored in the cache
+manager. 15 minutes has been chosen as the default to ensure data does not have to be recreated too often, but in the
+event of a change in data, the cached information does not persist for too long.
+
+```python
+client.set_data(key, data, ttl=900)
+```
+
+The **get_data** method can be called with the **key** parameter to retrieve data stored under the specified key.
+Optionally, the **max_wait_time** parameter can be used to specify the number of seconds to wait before timing out
+(default: 30).
+
+```python
+client.get_data(key, max_wait_time=30)
+```
+
+Calling the **get_data** method when the data exists in the cache manager will return the data. However, if the data
+does not exist in the cache manager, it will return a lock. Obtaining a lock means the cache manager expects the
+component to make the call to get the data directly and then use the **set_data** method to set the data in the cache
+manager, ready to be used by other components. Any concurrent components calling the **get_data** method will block if
+they cannot obtain the lock, this ensures that only one component sets the data. Once the data has been set, all blocked
+components will be unblocked and return the newly cached data. The **max_wait_time** parameter of the **get_data**
+method has a default of 30 seconds, but needs to be large enough for this cycle to be completed.
+
+
+### CacheManagerUtils
+
+To simplify calls to the cache manager, **plugnpy** provides a helper utility method **get_via_cachemanager**, this will
+create the cache manager client and call the **get_data** and **set_data** methods as required.
+
+This method expects five parameters:
+* no_cachemanager: True if cache manager is not required, False otherwise.
+* key: The key to store the data under.
+* func: The function to retrieve the data, if the data is not in the cache manager.
+* args: The arguments to pass to the user's data retrieval function.
+* kwargs: The keyword arguments to pass to the user's data retrieval function.
+
+
+```python
+def api_call(string):
+  return string[::-1]
+
+CacheManagerUtils.get_via_cachemanager(no_cachemanager, 'my_key', api_call, 'hello')
+```
+
+In this example, if the data exists in the cache manager under the key `'my_key'`, the call to **get_via_cachemanager**
+will simply return the data. However, if the data does not exist in the cache manager, the call to
+**get_via_cachemanager** will call the **api_call** method with the argument `'hello'` and then set the data in the
+cachemanager, so future calls can use the data from the cache manager.
+

@@ -4,14 +4,7 @@ import pytest
 
 from plugnpy.exception import InvalidMetricThreshold
 from plugnpy.metric import Metric
-
-
-def raise_or_assert(callback, raises, expected):
-    if raises:
-        with pytest.raises(raises):
-            callback()
-    else:
-        assert callback() == expected
+from .test_base import raise_or_assert
 
 
 @pytest.mark.parametrize('value, si_bytes_conversion, display_format, raises, expected, convert_metric', [
@@ -22,12 +15,12 @@ def raise_or_assert(callback, raises, expected):
     (1000, True, '{name} is {value} {unit}', False, 'Memory is 1.00 KB', True),
     ('GREEN', False, '{name} is {value}', False, 'Memory is GREEN', False),
 ], ids=[
-        'convert_false',
-        'display_format',
-        'wrong_display_format',
-        'convert_si_units',
-        'convert_non_si_units',
-        'str_value',
+    'convert_false',
+    'display_format',
+    'wrong_display_format',
+    'convert_si_units',
+    'convert_non_si_units',
+    'str_value',
 ])
 def test_str(value, si_bytes_conversion, display_format, raises, expected, convert_metric):
     raise_or_assert(
@@ -162,12 +155,14 @@ def test_parse_threshold(threshold, raises, expected):
 def test_state(warning_threshold, critical_threshold, expected):
     assert Metric('Memory', 100, 'bytes', warning_threshold, critical_threshold).state == expected
 
-def test_summary_precision():
-    metric = Metric('metric_name', 10.12345, 'B', summary_precision=3, perf_data_precision=2)
+
+def test_precision():
+    metric = Metric('metric_name', 10.12345, '', summary_precision=3, perf_data_precision=2)
     assert '10.123' in str(metric)
     assert '10.12' in str(metric.perf_data)
     assert '10.12345' not in str(metric)
     assert '10.123' not in str(metric.perf_data)
+
 
 @pytest.mark.parametrize('value, error_msg',
                          [(None, "Invalid value for performance data precision 'None': "
@@ -178,6 +173,7 @@ def test_invalid_perf_data_precision(value, error_msg):
     with pytest.raises(Exception) as ex:
         Metric('metric_name', 10.12345, 'B', perf_data_precision=value)
     assert error_msg in str(ex.value)
+
 
 @pytest.mark.parametrize('value, error_msg',
                          [(None, "Invalid value for summary precision 'None': "
@@ -193,4 +189,3 @@ def test_invalid_summary_precision(value, error_msg):
 def test_perf_data_type_conversion():
     metric = Metric('metric_name', '1', 'B')
     assert 'metric_name=1.00B' in str(metric.perf_data)
-

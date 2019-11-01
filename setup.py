@@ -58,13 +58,16 @@ setup(
     data_files=[
         ('info', ['VERSION', 'LICENSE', 'README.md'])
     ],
-    install_requires=[],
+    install_requires=[
+        'geventhttpclient',
+    ],
     extras_require={
         'test': [
             'coverage',
             'pytest',
             'pytest-benchmark',
             'pytest-cov',
+            'pytest-mock',
             'pycodestyle',
             'pylint',
             'pyflakes',
