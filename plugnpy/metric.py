@@ -130,7 +130,7 @@ class Metric(object):
 
         if self.convert_metric:
             value, unit = Metric.convert_value(self.value, self.unit, si_bytes_conversion=self.si_bytes_conversion)
-
+        unit = '/s' if self.unit == 'per_second' else unit
         # try to convert value to precision specified if it's a number
         try:
             value = float(value)
