@@ -95,3 +95,15 @@ def test_final_with_obj(capsys):
             os.linesep
         )
     )
+
+def test_final_per_second_UOM(capsys):
+    check = Check()
+    check.add_metric('Outbound Objects', 100, 'per_second', '50', '150', summary_precision=0, perf_data_precision=0)
+    with pytest.raises(SystemExit) as e:
+        check.final()
+    assert e.value.code == 1
+    assert capsys.readouterr().out == (
+        "METRIC WARNING - Outbound Objects is 100/s | 'Outbound Objects'=100per_second;50;150{0}".format(
+            os.linesep
+        )
+    )
