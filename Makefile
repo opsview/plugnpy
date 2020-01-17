@@ -67,8 +67,10 @@ version:
 
 # Build a Wheel package
 wheel: clean version venv
+	cp LICENSE README.md plugnpy; \
 	source venv/bin/activate ; \
-	python setup.py sdist bdist_wheel
+	python setup.py sdist bdist_wheel; \
+	rm plugnpy/LICENSE plugnpy/README.md
 
 # Test using setuptools
 test: venv

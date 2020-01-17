@@ -16,7 +16,7 @@ class CacheManagerUtils(object):
     client = None
 
     @staticmethod
-    def get_via_cachemanager(no_cachemanager, key, func, *args, **kwargs):
+    def get_via_cachemanager(no_cachemanager, key, ttl, func, *args, **kwargs):
         """Gets data via the cache manager
 
         If the cache manager is not required, calls the function directly and returns the data.
@@ -28,6 +28,7 @@ class CacheManagerUtils(object):
 
         :param no_cachemanager: True if cache manager is not required, False otherwise.
         :param key: The key to store the data under.
+        :param ttl: The number of seconds data is valid for
         :param func: The function to retrieve the data, if the data is not in the cache manager.
         :param args: The arguments to pass to the user's data retrieval function.
         :param kwargs: The keyword arguments to pass to the user's data retrieval function.
@@ -52,7 +53,7 @@ class CacheManagerUtils(object):
         if lock:
             data = func(*args, **kwargs)
             data = json.dumps(data)
-            CacheManagerUtils.client.set_data(key, data)
+            CacheManagerUtils.client.set_data(key, data, ttl)
         if not data:
             raise ResultError("Failed to retrieve data from cache manager")
         data = json.loads(data)

@@ -4,6 +4,11 @@ None of these have special behaviour.
 """
 
 
+class ParamErrorWithHelp(Exception):
+    """To be thrown when user input causes the issue but the help text also needs to be printed"""
+    pass
+
+
 class ParamError(Exception):
     """To be thrown when user input causes the issue"""
     pass
@@ -11,8 +16,7 @@ class ParamError(Exception):
 
 class ResultError(Exception):
     """To be thrown when the API/Metric Check returns either no result (when this isn't expected)
-    or returns a result that is essentially unusable.
-"""
+    or returns a result that is essentially unusable."""
     pass
 
 

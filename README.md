@@ -265,10 +265,11 @@ To use the parser, create an object of type **plugnpy.Parser** and use as you wo
 | Exception              | Usage                                                                                                                                                                |
 |------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ParamError             | To be thrown when user input causes the issue (i.e, wrong password, invalid input type, etc.)                                                                        |
+| ParamErrorWithHelp     | To be thrown when user input causes the issue (i.e, wrong password, invalid input type, etc.) and help text needs to be printed.                                     |
 | ResultError            | To be thrown when the API/Metric Check returns either no result (when this isn't expected) or returns a result that is essentially unusable.                         |
 | AssumedOK              | To be thrown when the status of the check cannot be identified. This is usually used when the check requires the result of a previous run and this is the first run. |
 | InvalidMetricThreshold | This shouldn't be thrown in a plugin. It is used internally in checks.py when an invalid metric threshold is passed in.                                              |
-| InvalidMetricName      | This shouldn't be thrown in a plugin. It is used internally in checks.py when an invalid metric name is passed in.                                              |
+| InvalidMetricName      | This shouldn't be thrown in a plugin. It is used internally in checks.py when an invalid metric name is passed in.                                                   |
 
 ## Cache Manager client
 
@@ -312,10 +313,10 @@ Once a cache manager client has been created, the **get_data** and **set_data** 
 respectively.
 
 The **set_data** method can be called with the **key** and **data** parameters, this will store the specified data,
-under the given key. Optionally, the **ttl** parameter can be used to specify the number of seconds the data is valid
-for (default: 900). It is expected that session information and other temporary data will be stored in the cache
-manager. 15 minutes has been chosen as the default to ensure data does not have to be recreated too often, but in the
-event of a change in data, the cached information does not persist for too long.
+under the given key. Optionally, the **ttl** parameter (Time To Live) can be used to specify the number of seconds the
+data is valid for (default: 900). It is expected that session information and other temporary data will be stored in the
+cache manager. 15 minutes has been chosen as the default to ensure data does not have to be recreated too often, but in
+the event of a change in data, the cached information does not persist for too long.
 
 ```python
 client.set_data(key, data, ttl=900)
@@ -343,9 +344,10 @@ method has a default of 30 seconds, but needs to be large enough for this cycle 
 To simplify calls to the cache manager, **plugnpy** provides a helper utility method **get_via_cachemanager**, this will
 create the cache manager client and call the **get_data** and **set_data** methods as required.
 
-This method expects five parameters:
+This method expects the following parameters:
 * no_cachemanager: True if cache manager is not required, False otherwise.
 * key: The key to store the data under.
+* ttl: The Time To Live, number of seconds the data is valid for in the cache manager.
 * func: The function to retrieve the data, if the data is not in the cache manager.
 * args: The arguments to pass to the user's data retrieval function.
 * kwargs: The keyword arguments to pass to the user's data retrieval function.
@@ -355,11 +357,12 @@ This method expects five parameters:
 def api_call(string):
   return string[::-1]
 
-CacheManagerUtils.get_via_cachemanager(no_cachemanager, 'my_key', api_call, 'hello')
+CacheManagerUtils.get_via_cachemanager(no_cachemanager, 'my_key', 300, api_call, 'hello')
 ```
 
 In this example, if the data exists in the cache manager under the key `'my_key'`, the call to **get_via_cachemanager**
 will simply return the data. However, if the data does not exist in the cache manager, the call to
 **get_via_cachemanager** will call the **api_call** method with the argument `'hello'` and then set the data in the
-cachemanager, so future calls can use the data from the cache manager.
+cachemanager, so future calls can use the data from the cache manager. The data is valid for the time specified by the
+TTL.
 

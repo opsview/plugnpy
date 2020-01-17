@@ -55,9 +55,7 @@ setup(
     ],
     keywords='plugnpy',
     packages=['plugnpy'],
-    data_files=[
-        ('info', ['VERSION', 'LICENSE', 'README.md'])
-    ],
+    include_package_data=True,
     install_requires=[
         'geventhttpclient',
     ],
