@@ -44,7 +44,7 @@ def test_get_via_cachemanager(mocker, no_cachemanager, cachemanager_host, get_da
     CacheManagerClient.set_data = mocker.Mock()
 
     raise_or_assert(
-        functools.partial(CacheManagerUtils.get_via_cachemanager, no_cachemanager, 'key', func, 2),
+        functools.partial(CacheManagerUtils.get_via_cachemanager, no_cachemanager, 'key', 900, func, 2),
         raises,
         expected
     )
