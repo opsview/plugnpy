@@ -48,3 +48,20 @@ def test_get_via_cachemanager(mocker, no_cachemanager, cachemanager_host, get_da
         raises,
         expected
     )
+
+def test_get_via_cachemanager_exception(mocker):
+    host = os.environ['OPSVIEW_CACHE_MANAGER_HOST'] = 'host'
+    port = os.environ['OPSVIEW_CACHE_MANAGER_PORT'] = 'some_port'
+    namespace = os.environ['OPSVIEW_CACHE_MANAGER_NAMESPACE'] = 'some_namespace'
+
+    def func(error):
+        raise Exception(error)
+
+    CacheManagerClient.get_data = mocker.Mock(return_value={'data': None, 'lock': True})
+    CacheManagerClient.set_data = mocker.Mock()
+
+    raise_or_assert(
+        functools.partial(CacheManagerUtils.get_via_cachemanager, False, 'key', 900, func, "Something went wrong"),
+        False,
+        {'error': 'Something went wrong'}
+    )

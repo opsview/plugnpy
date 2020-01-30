@@ -51,7 +51,11 @@ class CacheManagerUtils(object):
             raise ResultError("Failed to connect to cache manager: {0}".format(ex))
         data, lock = response['data'], response['lock']
         if lock:
-            data = func(*args, **kwargs)
+            # Any exceptions in the function call will be stored in the cache manager under the 'error' key
+            try:
+                data = func(*args, **kwargs)
+            except Exception as ex:
+                data = {'error': str(ex)}
             data = json.dumps(data)
             CacheManagerUtils.client.set_data(key, data, ttl)
         if not data:
