@@ -16,6 +16,7 @@ coverage.xml
 *.cover
 .env
 .venv
+.venv3
 .tmp
 *.so
 __pycache__
@@ -26,5 +27,5 @@ htmlcov
 build
 dist
 **/*.pyc
-venv
 .junit.xml
+.tox

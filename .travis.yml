@@ -5,12 +5,10 @@ dist: xenial
 branches:
   only:
     - master
-    - develop
-    - travis
 
 python:
   - "2.7"
-  - "3.6"
+  - "3.7"
 
 install:
   - pip install coveralls
@@ -18,7 +16,8 @@ install:
   - pip install -e .[test]
 
 script:
-  - make test
+  - python setup.py test
+
 
 after_success:
-  - if [[ $TRAVIS_BRANCH == 'master' ]] && [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then coveralls; fi;
+  - if [[ $TRAVIS_BRANCH == 'master' ]] && [[ $TRAVIS_PYTHON_VERSION == '3.7' ]]; then coveralls; fi;
