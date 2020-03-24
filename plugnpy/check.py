@@ -37,8 +37,8 @@ class Check(object):
                         metric_obj.summary_precision,
                         metric_obj.perf_data_precision)
 
-    def add_metric(self, name, value, unit='', warning_threshold='', critical_threshold='',
-                   display_format='{name} is {value}{unit}', display_in_perf=True,
+    def add_metric(self, name, value, unit='', warning_threshold='',  # pylint: disable=too-many-arguments
+                   critical_threshold='', display_format='{name} is {value}{unit}', display_in_perf=True,
                    display_in_summary=True, display_name=None, convert_metric=None, si_bytes_conversion=False,
                    summary_precision=2, perf_data_precision=2):
         """Add a metric to the check's performance data.
@@ -47,8 +47,10 @@ class Check(object):
         - name -- Name of the Metric
         - value -- Value of the Metric (note: do not include unit of measure)
         - unit -- Unit of Measure of the Metric
-        - warning_threshold -- Warning threshold for the Metric (default: '') - see Monitoring Plugins Development Guidelines
-        - critical_threshold -- Critical threshold for the Metric (default: '') - see Monitoring Plugins Development Guidelines
+        - warning_threshold -- Warning threshold for the Metric (default: '')
+            - see Monitoring Plugins Development Guidelines
+        - critical_threshold -- Critical threshold for the Metric (default: '')
+            - see Monitoring Plugins Development Guidelines
         - display_format -- Formatting string to print the Metric (default: "{name} is {value} {unit}")
         - display_name -- Name to be used in friendly output (default: value of name)
         - display_in_summary -- Whether to print the metric in the summary (default: True)

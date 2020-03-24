@@ -32,6 +32,9 @@ PKGNAME=${VENDOR}-${PROJECT}
 # Current directory
 CURRENTDIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
+# Path to python3
+PYTHON3_BIN=/opt/opsview/python3/bin/python3
+
 # --- MAKE TARGETS ---
 
 # Display general help about this command
@@ -42,8 +45,9 @@ help:
 	@echo ""
 	@echo "    make venv       : Set up development virtual environment"
 	@echo "    make version    : Set version from VERSION file"
-	@echo "    make wheel      : Build a Wheel package"
-	@echo "    make test       : Execute test command"
+	@echo "    make build      : Build a Wheel package"
+	@echo "    make verify     : Run tests and linting"
+	@echo "    make test       : Execute tests in py27 and py37 envs"
 	@echo "    make lint       : Evaluate code"
 	@echo "    make doc        : Start a server to display source code documentation"
 	@echo "    make format     : Format the source code"
@@ -55,32 +59,56 @@ all: help
 # Build dev env
 venv: venv/bin/activate
 
-venv/bin/activate: requirements.txt
-	test -d venv || virtualenv venv
-	source venv/bin/activate ; \
+venv/bin/activate: requirements.txt setup.py
+	test -d .venv || virtualenv .venv
+	source .venv/bin/activate ; \
 	pip install -r requirements.txt ; \
-	pip install -e '.[test]'
+	pip install -e '.[test]' ; \
+	pip install -e '.[examples]'
+
+# Build dev env for python3
+venv3: venv3/bin/activate
+
+venv3/bin/activate: requirements.txt setup.py
+	test -d .venv3 || ${PYTHON3_BIN} -m venv .venv3
+	source .venv3/bin/activate ; \
+	pip install -r requirements.txt ; \
+	pip install -e '.[test]' ; \
+	pip install -e '.[examples]'
 
 # Set the version from VERSION file
 version:
 	sed -i "s/__version__.*$$/__version__ = '$(VERSION)'/" plugnpy/__init__.py
 
 # Build a Wheel package
-wheel: clean version venv
+build: clean version venv
 	cp LICENSE README.md plugnpy; \
-	source venv/bin/activate ; \
+	source .venv/bin/activate ; \
 	python setup.py sdist bdist_wheel; \
 	rm plugnpy/LICENSE plugnpy/README.md
 
-# Test using setuptools
+# Run tests and linting
+verify: test lint
+
+# Test using tox
 test: venv
-	source venv/bin/activate ; \
-	python setup.py test ; \
+	source .venv/bin/activate ; \
+	python -m tox ; \
 	coverage html
+
+# Run tests only on python2
+tox2: venv
+	source .venv/bin/activate ; \
+	python -m tox -e py27
+
+# Run tests only on python3
+tox3: venv3
+	source .venv3/bin/activate ; \
+	python -m tox -e py37
 
 # Evaluate code
 lint: venv
-	source venv/bin/activate ; \
+	source .venv/bin/activate ; \
 	pyflakes ${PROJECT} ; \
 	pylint ${PROJECT} ; \
 	pycodestyle --max-line-length=120 ${PROJECT}
@@ -95,5 +123,5 @@ format:
 
 # Remove any build artifact
 clean:
-	rm -rf venv target htmlcov build dist .cache .benchmarks ./test/*.so ./test/__pycache__ ./plugnpy/__pycache__ ./plugnpy.egg-info .pytest_cache .coverage .junit.xml
+	rm -rf .venv .venv3 .tox target htmlcov build dist .cache .benchmarks ./test/*.so ./test/__pycache__ ./plugnpy/__pycache__ ./plugnpy.egg-info .pytest_cache .coverage .junit.xml
 	find . -type f -name '*.pyc' -exec rm -f {} \;

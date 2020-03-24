@@ -9,11 +9,31 @@ from geventhttpclient import HTTPClient
 from .exception import ResultError
 from .utils import hash_string
 
+ESCAPE_CHARACTER = '\\'
+DELIMITER = '#'
 
-class CacheManagerUtils(object):
+
+class CacheManagerUtils(object):  # pylint: disable=too-few-public-methods
     """Utility functions for cache manager"""
 
     client = None
+
+    @staticmethod
+    def generate_key(*args):
+        """Generate a key for use in cache manager
+
+        Escapes escape characters in the arguments and then produces a hash of all the arguments passed in.
+
+        :param args: The arguments to be used to create the key.
+        """
+        values = []
+        for arg in args:
+            if ESCAPE_CHARACTER in arg:
+                arg = arg.replace(ESCAPE_CHARACTER, ESCAPE_CHARACTER * 2)
+            if DELIMITER in arg:
+                arg = arg.replace(DELIMITER, ESCAPE_CHARACTER + DELIMITER)
+            values.append(arg)
+        return hash_string(DELIMITER.join(values))
 
     @staticmethod
     def get_via_cachemanager(no_cachemanager, key, ttl, func, *args, **kwargs):
@@ -54,7 +74,7 @@ class CacheManagerUtils(object):
             # Any exceptions in the function call will be stored in the cache manager under the 'error' key
             try:
                 data = func(*args, **kwargs)
-            except Exception as ex:
+            except Exception as ex:  # pylint: disable=broad-except
                 data = {'error': str(ex)}
             data = json.dumps(data)
             CacheManagerUtils.client.set_data(key, data, ttl)

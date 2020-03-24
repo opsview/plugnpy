@@ -65,3 +65,16 @@ def test_get_via_cachemanager_exception(mocker):
         False,
         {'error': 'Something went wrong'}
     )
+
+# generated with https://emn178.github.io/online-tools/sha256.html
+@pytest.mark.parametrize(
+    'arg1, arg2, arg3, expected',
+    [
+        ('foo', 'bar', 'baz', 'c851d6b72c3403e8b8e2f6cbacaa2408fd5cc3b4d6ba4c3d9af7ef8d9c1dca29'),
+        ('foo', 'bar', 'b#az', '69a23c03596c3910e13fcbcb1e8dec0bf0187f78b9bdef8b89ced3b358cfe9d7'),
+        ('foo', 'bar', r'b\#az', 'ae4d9cb53b330c479b9ebe734afd1b84aec2f96e75acf66c59863d773c9cfc81'),
+    ]
+)
+def test_generate_key(arg1, arg2, arg3, expected):
+    actual = CacheManagerUtils.generate_key(arg1, arg2, arg3)
+    assert actual == expected

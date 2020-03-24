@@ -4,6 +4,7 @@ exclude .coveragerc
 exclude .travis.yml
 include plugnpy/LICENSE
 include plugnpy/README.md
+include VERSION
 include setup.cfg
 prune .cache
 prune .git

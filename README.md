@@ -49,7 +49,7 @@ make test
 
 To build the library in the development environment:
 ```
-make wheel
+make build
 ```
 
 This will create a `plugnpy-VERSION.tar.gz` file in the `dist` directory which can be installed in the same way as the prepackaged one above.
@@ -341,6 +341,8 @@ method has a default of 30 seconds, but needs to be large enough for this cycle 
 
 ### CacheManagerUtils
 
+#### get_via_cachemanager
+
 To simplify calls to the cache manager, **plugnpy** provides a helper utility method **get_via_cachemanager**, this will
 create the cache manager client and call the **get_data** and **set_data** methods as required.
 
@@ -366,3 +368,19 @@ will simply return the data. However, if the data does not exist in the cache ma
 cachemanager, so future calls can use the data from the cache manager. The data is valid for the time specified by the
 TTL.
 
+
+#### generate_key
+
+CacheManagerUtils also contains a **generate_key** method which can be used to create a unique key for cache manager
+based on the arguments that are passed in. All arguments are first escaped if they contain the cache manager delimiter
+(`#`), and then joined by the delimiter before a SHA-256 hash is generated.
+
+```python
+CacheManagerUtils.generate_key('foo', 'b#ar', 'b\#az')
+```
+
+This would be equivalent to:
+
+```python
+hash_string('foo#b\#ar#b\\\#az')
+```

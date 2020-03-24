@@ -1,4 +1,4 @@
-#!/opt/opsview/python/bin/python
+#!/usr/bin/env python3
 # Copyright (C) 2003-2019 Opsview Limited. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

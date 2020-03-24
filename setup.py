@@ -5,7 +5,6 @@ from codecs import open
 from os.path import dirname, join
 from subprocess import call
 from setuptools import Command, find_packages, setup
-from plugnpy import __version__ as VERSION
 
 
 def read(fname):
@@ -38,7 +37,7 @@ class RunTests(Command):
 
 setup(
     name='plugnpy',
-    version=VERSION,
+    version=read('VERSION'),
     description='A Simple Python Library for creating Opsview Opspack plugins',
     long_description=read('README.md'),
     url='https://github.com/opsview/plugnpy',
@@ -51,7 +50,7 @@ setup(
         'License :: Apache-2.0',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords='plugnpy',
     packages=['plugnpy'],
@@ -61,6 +60,7 @@ setup(
     ],
     extras_require={
         'test': [
+            'tox',
             'coverage',
             'pytest',
             'pytest-benchmark',
@@ -69,6 +69,9 @@ setup(
             'pycodestyle',
             'pylint',
             'pyflakes',
+        ],
+        'examples': [
+            'psutil',
         ],
     },
     cmdclass={'test': RunTests},

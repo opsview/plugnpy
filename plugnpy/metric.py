@@ -4,7 +4,7 @@ Metric Class.
 from .exception import InvalidMetricThreshold
 
 
-class Metric(object):
+class Metric(object):  # pylint: disable=too-many-instance-attributes
     """Object to represent Metrics added to a Check object.
 
     Keyword Arguments:
@@ -76,7 +76,7 @@ class Metric(object):
         UNIT_EXA: lambda factor: 1.0 / factor ** 6,
     }
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
             self, name, value, unit,
             warning_threshold='',
             critical_threshold='',
@@ -144,7 +144,7 @@ class Metric(object):
 
     @staticmethod
     def evaluate(value, warning_threshold, critical_threshold, si_bytes_conversion=False):
-        """Returns the status code of a check obtained by evaluating the value against warning and critical thresholds"""
+        """Returns the status code of a check by evaluating the value against warning and critical thresholds"""
         status = Metric.STATUS_OK
         if warning_threshold:
             if Metric._check_range(value, *Metric._parse_threshold(warning_threshold, si_bytes_conversion)):
@@ -155,7 +155,8 @@ class Metric(object):
         return status
 
     @staticmethod
-    def calculate_perf_data(name, value, unit, warning_threshold, critical_threshold, precision=2):
+    def calculate_perf_data(name, value, unit, warning_threshold,  # pylint: disable=too-many-arguments
+                            critical_threshold, precision=2):
         """Returns the perf data string for the check"""
         value = '{0:.{1}f}'.format(value, precision)
         return "{0}={1}{2}{3}{4}{5}{6}".format(

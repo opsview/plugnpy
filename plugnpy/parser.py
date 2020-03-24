@@ -7,12 +7,12 @@ from gettext import gettext
 import sys
 
 
-class _HelpAction(argparse.Action):
+class _HelpAction(argparse.Action):  # pylint: disable=too-few-public-methods
     def __init__(self,
                  option_strings,
                  dest=argparse.SUPPRESS,
                  default=argparse.SUPPRESS,
-                 help=None):
+                 help=None):  # pylint: disable=redefined-builtin
         super(_HelpAction, self).__init__(
             option_strings=option_strings,
             dest=dest,
@@ -25,7 +25,7 @@ class _HelpAction(argparse.Action):
         parser.exit(3)
 
 
-argparse._HelpAction = _HelpAction
+argparse._HelpAction = _HelpAction  # pylint: disable=protected-access
 
 
 class Parser(argparse.ArgumentParser):
@@ -71,7 +71,7 @@ class Parser(argparse.ArgumentParser):
         for action_group in self._action_groups:
             formatter.start_section(action_group.title)
             formatter.add_text(action_group.description)
-            formatter.add_arguments(action_group._group_actions)
+            formatter.add_arguments(action_group._group_actions)  # pylint: disable=protected-access
             formatter.end_section()
 
         # epilog

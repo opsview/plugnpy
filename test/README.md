@@ -1,17 +1,21 @@
 ## plugnpy tests
 
-### Prerequisites
-
-To run these unit tests, [pytest-cov](https://pypi.org/project/pytest-cov/) and [pytest](https://docs.pytest.org/en/latest/contents.html) are required. To quickly install all the required libraries, run the following.
+### Running tests on python2 and python3
 
 ```sh
-pip install pytest pytest-cov
+make test
 ```
 
-### Running the tests
+This will create a virtual environment, install all the required libraries then run the tests on python2 and python3 environments.
 
-To run the tests, use the following command in a terminal.
+### Running tests only on python2
 
 ```sh
-pytest -v --cov=plugnpy
+make tox2
+```
+
+### Running tests only on python3
+
+```sh
+make tox3
 ```
