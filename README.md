@@ -368,6 +368,15 @@ will simply return the data. However, if the data does not exist in the cache ma
 cachemanager, so future calls can use the data from the cache manager. The data is valid for the time specified by the
 TTL.
 
+#### set_data
+
+Sometimes data must be inserted or updated in the cache manager, without retrieving the existing data. In these
+scenarios the **set_data** method can be used, this will create the cache manager client and call the **set_data**
+method of the **CacheManagerClient** internally.
+
+```python
+CachemanagerUtils.set_data(key, data, ttl)
+```
 
 #### generate_key
 

@@ -17,6 +17,9 @@ class CacheManagerUtils(object):  # pylint: disable=too-few-public-methods
     """Utility functions for cache manager"""
 
     client = None
+    host = os.environ.get('OPSVIEW_CACHE_MANAGER_HOST')
+    port = os.environ.get('OPSVIEW_CACHE_MANAGER_PORT')
+    namespace = os.environ.get('OPSVIEW_CACHE_MANAGER_NAMESPACE')
 
     @staticmethod
     def generate_key(*args):
@@ -36,6 +39,24 @@ class CacheManagerUtils(object):  # pylint: disable=too-few-public-methods
         return hash_string(DELIMITER.join(values))
 
     @staticmethod
+    def set_data(key, data, ttl=900):
+        """Set data in the cache manager
+
+        :param key: The key to store the data under.
+        :param data: The data to store.
+        :param ttl: The number of seconds data is valid for.
+        """
+        if not CacheManagerUtils.client:
+            CacheManagerUtils.client = CacheManagerClient(
+                CacheManagerUtils.host,
+                CacheManagerUtils.port,
+                CacheManagerUtils.namespace
+            )
+        data = json.dumps(data)
+        key = hash_string(key)
+        return CacheManagerUtils.client.set_data(key, data, ttl)
+
+    @staticmethod
     def get_via_cachemanager(no_cachemanager, key, ttl, func, *args, **kwargs):
         """Gets data via the cache manager
 
@@ -43,26 +64,23 @@ class CacheManagerUtils(object):  # pylint: disable=too-few-public-methods
         If the cache manager is required, tries to get the data from the cachemanager.
         If the data does not exist, calls the function and stores the returned data in the cache manager.
 
-        Tries to get data via the cachemanager, if the data doesn't exists, calls the func with the specified args and
-        sets the
-
         :param no_cachemanager: True if cache manager is not required, False otherwise.
         :param key: The key to store the data under.
-        :param ttl: The number of seconds data is valid for
+        :param ttl: The number of seconds data is valid for.
         :param func: The function to retrieve the data, if the data is not in the cache manager.
         :param args: The arguments to pass to the user's data retrieval function.
         :param kwargs: The keyword arguments to pass to the user's data retrieval function.
         """
-        host = os.environ.get('OPSVIEW_CACHE_MANAGER_HOST')
-        port = os.environ.get('OPSVIEW_CACHE_MANAGER_PORT')
-        namespace = os.environ.get('OPSVIEW_CACHE_MANAGER_NAMESPACE')
-
-        if not CacheManagerUtils._is_required(no_cachemanager, host):
+        if not CacheManagerUtils._is_required(no_cachemanager, CacheManagerUtils.host):
             data = func(*args, **kwargs)
             return data
 
         if not CacheManagerUtils.client:
-            CacheManagerUtils.client = CacheManagerClient(host, port, namespace)
+            CacheManagerUtils.client = CacheManagerClient(
+                CacheManagerUtils.host,
+                CacheManagerUtils.port,
+                CacheManagerUtils.namespace
+            )
 
         key = hash_string(key)
         try:

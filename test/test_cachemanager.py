@@ -1,4 +1,3 @@
-import os
 import functools
 import pytest
 from socket import error as SocketError
@@ -34,9 +33,9 @@ def test_is_required(no_cachemanager, cachemanager_host, raises, expected):
 )
 def test_get_via_cachemanager(mocker, no_cachemanager, cachemanager_host, get_data_retval, get_data_side_effect, raises,
                               expected):
-    host = os.environ['OPSVIEW_CACHE_MANAGER_HOST'] = cachemanager_host
-    port = os.environ['OPSVIEW_CACHE_MANAGER_PORT'] = 'some_port'
-    namespace = os.environ['OPSVIEW_CACHE_MANAGER_NAMESPACE'] = 'some_namespace'
+    CacheManagerUtils.host = cachemanager_host
+    CacheManagerUtils.port = 'some_port'
+    CacheManagerUtils.namespace = 'some_namespace'
 
     func = lambda x: str(x**2)
 
@@ -50,9 +49,9 @@ def test_get_via_cachemanager(mocker, no_cachemanager, cachemanager_host, get_da
     )
 
 def test_get_via_cachemanager_exception(mocker):
-    host = os.environ['OPSVIEW_CACHE_MANAGER_HOST'] = 'host'
-    port = os.environ['OPSVIEW_CACHE_MANAGER_PORT'] = 'some_port'
-    namespace = os.environ['OPSVIEW_CACHE_MANAGER_NAMESPACE'] = 'some_namespace'
+    CacheManagerUtils.host = 'host'
+    CacheManagerUtils.port = 'some_port'
+    CacheManagerUtils.namespace = 'some_namespace'
 
     def func(error):
         raise Exception(error)
@@ -65,6 +64,24 @@ def test_get_via_cachemanager_exception(mocker):
         False,
         {'error': 'Something went wrong'}
     )
+
+def test_set_data(mocker):
+    CacheManagerUtils.host = 'host'
+    CacheManagerUtils.port = 'some_port'
+    CacheManagerUtils.namespace = 'some_namespace'
+    CacheManagerUtils.client = None
+    expected = 'data'
+    CacheManagerClient.set_data = mocker.Mock(return_value=expected)
+
+    assert CacheManagerUtils.client == None
+    actual = CacheManagerUtils.set_data('key', {'some': 'data'}, 900)
+    assert actual == expected
+
+    # after call client will be initialised
+    assert CacheManagerUtils.client != None
+    actual = CacheManagerUtils.set_data('key', {'some': 'data'}, 900)
+    assert actual == expected
+
 
 # generated with https://emn178.github.io/online-tools/sha256.html
 @pytest.mark.parametrize(

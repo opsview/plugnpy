@@ -61,6 +61,14 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
     CONVERTIBLE_UNITS_N = (UNIT_SECONDS, UNIT_HERTZ, UNIT_WATTS)
     CONVERTIBLE_UNITS = CONVERTIBLE_UNITS_P + CONVERTIBLE_UNITS_N
 
+    UNIT_MAPPING = {
+        'per_second': '/s',
+        'per_minute': '/min',
+        'seconds_per_minute': 's/min',
+        'bytes_per_second': 'B/s',
+        'bytes_per_minute': 'B/min'
+    }
+
     # Prefixes for units
     DISPLAY_UNIT_FACTORS = {
         UNIT_BYTES: lambda factor: 1.0,
@@ -130,7 +138,8 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
 
         if self.convert_metric:
             value, unit = Metric.convert_value(self.value, self.unit, si_bytes_conversion=self.si_bytes_conversion)
-        unit = '/s' if self.unit == 'per_second' else unit
+
+        unit = self.UNIT_MAPPING.get(self.unit, unit)
         # try to convert value to precision specified if it's a number
         try:
             value = float(value)
