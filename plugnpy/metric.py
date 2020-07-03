@@ -37,6 +37,8 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
     UNIT_BYTES = 'B'
     UNIT_BITS_PS = 'bps'
     UNIT_BYTES_PS = 'Bps'
+    UNIT_BYTES_PER_SECOND = 'B/s'
+    UNIT_BYTES_PER_MINUTE = 'B/min'
     UNIT_WATTS = 'W'
     UNIT_HERTZ = 'Hz'
     UNIT_SECONDS = 's'
@@ -56,7 +58,7 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
     UNIT_PREFIXES_P = (UNIT_EXA, UNIT_PETA, UNIT_TERA, UNIT_GIGA, UNIT_MEGA, UNIT_KILO)
     UNIT_PREFIXES_N = (UNIT_MILLI, UNIT_MICRO, UNIT_NANO, UNIT_PICO)
 
-    BYTE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS)
+    BYTE_UNITS = (UNIT_BYTES, UNIT_BITS, UNIT_BITS_PS, UNIT_BYTES_PS, UNIT_BYTES_PER_SECOND, UNIT_BYTES_PER_MINUTE)
     CONVERTIBLE_UNITS_P = BYTE_UNITS + (UNIT_HERTZ, UNIT_WATTS)
     CONVERTIBLE_UNITS_N = (UNIT_SECONDS, UNIT_HERTZ, UNIT_WATTS)
     CONVERTIBLE_UNITS = CONVERTIBLE_UNITS_P + CONVERTIBLE_UNITS_N
@@ -66,7 +68,7 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
         'per_minute': '/min',
         'seconds_per_minute': 's/min',
         'bytes_per_second': 'B/s',
-        'bytes_per_minute': 'B/min'
+        'bytes_per_minute': 'B/min',
     }
 
     # Prefixes for units
@@ -133,13 +135,12 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
     def __str__(self):
         if self.message:
             return self.message
-        unit = self.unit
+        unit = self.UNIT_MAPPING.get(self.unit) or self.unit
         value = self.value
 
         if self.convert_metric:
-            value, unit = Metric.convert_value(self.value, self.unit, si_bytes_conversion=self.si_bytes_conversion)
+            value, unit = Metric.convert_value(self.value, unit, si_bytes_conversion=self.si_bytes_conversion)
 
-        unit = self.UNIT_MAPPING.get(self.unit, unit)
         # try to convert value to precision specified if it's a number
         try:
             value = float(value)
