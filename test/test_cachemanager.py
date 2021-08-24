@@ -1,7 +1,8 @@
 import functools
 import pytest
 from socket import error as SocketError
-from plugnpy import CacheManagerUtils, CacheManagerClient, ResultError
+from plugnpy.cachemanager import CacheManagerUtils, CacheManagerClient
+from plugnpy.exception import ResultError
 from .test_base import raise_or_assert
 
 
@@ -37,7 +38,7 @@ def test_get_via_cachemanager(mocker, no_cachemanager, cachemanager_host, get_da
     CacheManagerUtils.port = 'some_port'
     CacheManagerUtils.namespace = 'some_namespace'
 
-    func = lambda x: str(x**2)
+    def func(x): return str(x**2)
 
     CacheManagerClient.get_data = mocker.Mock(return_value=get_data_retval, side_effect=get_data_side_effect)
     CacheManagerClient.set_data = mocker.Mock()
@@ -47,6 +48,7 @@ def test_get_via_cachemanager(mocker, no_cachemanager, cachemanager_host, get_da
         raises,
         expected
     )
+
 
 def test_get_via_cachemanager_exception(mocker):
     CacheManagerUtils.host = 'host'
@@ -64,6 +66,7 @@ def test_get_via_cachemanager_exception(mocker):
         False,
         {'error': 'Something went wrong'}
     )
+
 
 def test_set_data(mocker):
     CacheManagerUtils.host = 'host'

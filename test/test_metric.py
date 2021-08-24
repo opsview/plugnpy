@@ -74,7 +74,8 @@ def test_check_range(value, start, end, check_outside_range, expected):
     (1e3, 'Hz', True, False, (1.0, 'KHz')),
     (1e6, 'W', True, False, (1.0, 'MW')),
     (1e9, 'Hz', True, False, (1.0, 'GHz')),
-    (1e12, 's', True, False, (1000000000000.0, 's')),
+    (86400 + 3600 + 60, 's', True, False, ("1d 1h 1m", '')),
+    (45, 's', True, False, ("45s", '')),
 
     # no conversion
     (1, '', True, False, (1.0, '')),
@@ -100,6 +101,7 @@ def test_convert_value(value, unit, si_bytes_conversion, raises, expected):
     ('1KB', False, False, 1024.0),
     ('', False, InvalidMetricThreshold, ''),
     ('KB', False, InvalidMetricThreshold, ''),
+    ('-1KB', True, False, -1000.0),
 ])
 def test_convert_threshold(value, si_bytes_conversion, raises, expected):
     raise_or_assert(
@@ -110,12 +112,14 @@ def test_convert_threshold(value, si_bytes_conversion, raises, expected):
 @pytest.mark.parametrize('value, is_start, raises, expected', [
     ('~', False, False, Metric.P_INF),
     ('~', True, False, Metric.N_INF),
+    ('-10K', True, False, -10000.0),
     ('10', True, False, 10.0),
     ('10K', True, False, 10000.0),
     ('10S', True, InvalidMetricThreshold, None),
 ], ids=[
     'infinite',
     'negative_infinite',
+    'negative_prefix',
     'no_prefix',
     'prefix',
     'wrong_prefix',
@@ -132,12 +136,20 @@ def test_parse_threshold_limit(value, is_start, raises, expected):
     ('3:', False, (3.0, Metric.P_INF, True)),
     ('~:5', False, (Metric.N_INF, 5.0, True)),
     ('bad', InvalidMetricThreshold, None),
+    ('1MB:2MB', False, (1000000.0, 2000000.0, True)),
+    ('1KB:2MB', False, (1000.0, 2000000.0, True)),
+    ('-2:-1', False, (-2.0, -1.0, True)),
+    ('-2KB:-1KB', False, (-2000.0, -1000.0, True)),
 ], ids=[
     'inside_range',
     'zero_start',
     'infinite_end',
     'normal_range',
-    'wrong_threshold'
+    'wrong_threshold',
+    'identical_conversion_factors',
+    'different_conversion_factors',
+    'negative',
+    'negative_conversion_factors',
 ])
 def test_parse_threshold(threshold, raises, expected):
     raise_or_assert(functools.partial(Metric._parse_threshold, threshold, Metric.SI_UNIT_FACTOR), raises, expected)

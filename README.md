@@ -7,7 +7,7 @@
 [![Master Coverage Status](https://coveralls.io/repos/opsview/plugnpy/badge.svg?branch=master&service=github)](https://coveralls.io/github/opsview/plugnpy?branch=master)
 
 * **category**    Libraries
-* **copyright**   2003-2019 Opsview Ltd
+* **copyright**   2003-2021 Opsview Ltd
 * **license**     Apache License Version 2.0 (see [LICENSE](LICENSE))
 * **link**        https://github.com/opsview/plugnpy
 
@@ -393,3 +393,13 @@ This would be equivalent to:
 ```python
 hash_string('foo#b\#ar#b\\\#az')
 ```
+
+### Utils
+
+#### convert_seconds
+
+**utils.py** contains a helper method **convert_seconds** to allow converting seconds to a more human readable format.
+For values more than `60` seconds, the seconds value will be omitted from the output, for values greater than `60`, the
+value will be returned in seconds.
+For example passing in the value `90060` to **convert_seconds** will return `1d 1h 1m`,
+and passing in the value `45` will return `45s`.

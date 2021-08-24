@@ -13,7 +13,7 @@ class _HelpAction(argparse.Action):  # pylint: disable=too-few-public-methods
                  dest=argparse.SUPPRESS,
                  default=argparse.SUPPRESS,
                  help=None):  # pylint: disable=redefined-builtin
-        super(_HelpAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             default=default,
@@ -53,7 +53,7 @@ class Parser(argparse.ArgumentParser):
         if 'copystr' in kwargs:
             self._copyright = kwargs['copystr']
             del kwargs['copystr']
-        super(Parser, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def format_help(self):
         formatter = self._get_formatter()

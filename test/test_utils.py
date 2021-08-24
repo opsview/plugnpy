@@ -1,6 +1,6 @@
 import pytest
 
-from plugnpy import hash_string, dynamic_import, import_modules
+from plugnpy.utils import hash_string, dynamic_import, import_modules
 
 
 def test_hash_string():
@@ -9,17 +9,20 @@ def test_hash_string():
     actual = hash_string('password')
     assert actual == expected
 
+
 def test_dynamic_import_module():
     json = dynamic_import('json')
     expected = '{"a": 10}'
     actual = json.dumps({'a': 10})
     assert actual == expected
 
+
 def test_dynamic_import_fromlist():
     json = dynamic_import('json', ['dumps', 'loads'])
     expected = {'a': 10}
     actual = json.loads('{"a": 10}')
     assert actual == expected
+
 
 def test_import_modules():
     modules_to_import = {

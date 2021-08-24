@@ -13,7 +13,7 @@ ESCAPE_CHARACTER = '\\'
 DELIMITER = '#'
 
 
-class CacheManagerUtils(object):  # pylint: disable=too-few-public-methods
+class CacheManagerUtils:  # pylint: disable=too-few-public-methods
     """Utility functions for cache manager"""
 
     client = None
@@ -86,7 +86,7 @@ class CacheManagerUtils(object):  # pylint: disable=too-few-public-methods
         try:
             response = CacheManagerUtils.client.get_data(key)
         except SocketError as ex:
-            raise ResultError("Failed to connect to cache manager: {0}".format(ex))
+            raise ResultError("Failed to connect to cache manager: {0}".format(ex)) from None
         data, lock = response['data'], response['lock']
         if lock:
             # Any exceptions in the function call will be stored in the cache manager under the 'error' key
@@ -111,7 +111,7 @@ class CacheManagerUtils(object):  # pylint: disable=too-few-public-methods
         return False
 
 
-class CacheManagerClient(object):  # pragma: no cover
+class CacheManagerClient:  # pragma: no cover
     """A simple client to contact the cachemanager and set or get cached data"""
 
     HTTP_STATUS_OK_MIN = 200

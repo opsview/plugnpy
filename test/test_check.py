@@ -96,6 +96,7 @@ def test_final_with_obj(capsys):
         )
     )
 
+
 def test_final_per_second_UOM(capsys):
     check = Check()
     check.add_metric('Outbound Objects', 100, 'per_second', '50', '150', summary_precision=0, perf_data_precision=0)

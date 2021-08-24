@@ -1,10 +1,11 @@
 """
 Metric Class.
 """
-from .exception import InvalidMetricThreshold
+from .exception import InvalidMetricName, InvalidMetricThreshold
+from .utils import convert_seconds
 
 
-class Metric(object):  # pylint: disable=too-many-instance-attributes
+class Metric:  # pylint: disable=too-many-instance-attributes
     """Object to represent Metrics added to a Check object.
 
     Keyword Arguments:
@@ -86,10 +87,10 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
         UNIT_EXA: lambda factor: 1.0 / factor ** 6,
     }
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
             self, name, value, unit,
-            warning_threshold='',
-            critical_threshold='',
+            warning_threshold=None,
+            critical_threshold=None,
             display_format="{name} is {value}{unit}",
             display_name=None,
             display_in_summary=True,
@@ -97,18 +98,23 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
             convert_metric=None,
             si_bytes_conversion=False,
             summary_precision=2,
-            perf_data_precision=2
+            perf_data_precision=2,
+            message='',
     ):
+        if ("'" in name) or ('"' in name):
+            raise InvalidMetricName("Metric names cannot contain \"'\".")
+        if "=" in name:
+            raise InvalidMetricName("Metric names cannot contain \"=\".")
         self.name = name
         self.value = value
         self.unit = unit
-        self.warning_threshold = warning_threshold
-        self.critical_threshold = critical_threshold
+        self.warning_threshold = warning_threshold or ''
+        self.critical_threshold = critical_threshold or ''
         self.display_format = display_format
         self.display_name = display_name if display_name else self.name
         self.display_in_summary = display_in_summary
         self.display_in_perf = display_in_perf
-        self.message = None
+        self.message = message
 
         self.convert_metric = convert_metric or (convert_metric is None and unit in Metric.BYTE_UNITS)
 
@@ -118,16 +124,17 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
         try:
             self.summary_precision = int(summary_precision)
         except (ValueError, TypeError) as ex:
-            raise Exception("Invalid value for summary precision '{0}': {1}".format(summary_precision, ex))
+            raise Exception("Invalid value for summary precision '{0}': {1}".format(summary_precision, ex)) from None
 
         try:
             self.perf_data_precision = int(perf_data_precision)
         except (ValueError, TypeError) as ex:
-            raise Exception("Invalid value for performance data precision '{0}': {1}".format(perf_data_precision, ex))
+            raise Exception("Invalid value for performance data precision '{0}': {1}".format(
+                perf_data_precision, ex)) from None
         try:
             self.value = float(self.value)
             self.perf_data = Metric.calculate_perf_data(
-                name, self.value, unit, warning_threshold, critical_threshold,
+                self.name, self.value, self.unit, self.warning_threshold, self.critical_threshold,
                 precision=self.perf_data_precision)
         except (ValueError, TypeError):
             self.perf_data = ''
@@ -181,7 +188,7 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
         try:
             value = float(value)
         except (ValueError, TypeError) as ex:
-            raise Exception("Invalid value for value '{0}': {1}".format(value, ex))
+            raise Exception("Invalid value for value '{0}': {1}".format(value, ex)) from None
 
         if unit in Metric.CONVERTIBLE_UNITS:
             conversion_factor = Metric._get_conversion_factor(unit, si_bytes_conversion)
@@ -191,6 +198,8 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
                 keys = Metric.UNIT_PREFIXES_N
             elif value > 1 and unit in Metric.CONVERTIBLE_UNITS_P:
                 keys = Metric.UNIT_PREFIXES_P
+            elif unit == Metric.UNIT_SECONDS:
+                return convert_seconds(value), ''
 
             for key in keys:
                 multiplication_factor = Metric.DISPLAY_UNIT_FACTORS[key](conversion_factor)
@@ -208,14 +217,14 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
     def _convert_threshold(value, si_bytes_conversion):
         """Convert threshold value."""
         value = str(value)
-        unit = value.lstrip('.1234567890')
+        unit = value.lstrip('-.1234567890')
         if unit:
             value = value[:-len(unit)]
 
         try:
             value = float(value)
         except (ValueError, TypeError) as exp:
-            raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
+            raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp)) from None
 
         if unit:
             try:
@@ -223,7 +232,7 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
                 conversion_factor = Metric._get_conversion_factor(unit[-1], si_bytes_conversion)
                 value = value / Metric.DISPLAY_UNIT_FACTORS[unit_prefix](conversion_factor)
             except KeyError as exp:
-                raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
+                raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp)) from None
         return value
 
     @staticmethod
@@ -260,7 +269,7 @@ class Metric(object):  # pylint: disable=too-many-instance-attributes
                 end = Metric._parse_threshold_limit(unparsed_end, False, si_bytes_conversion)
             return start, end, check_outside_range
         except Exception as exp:
-            raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp))
+            raise InvalidMetricThreshold("Invalid metric threshold: {0}.".format(exp)) from None
 
     @staticmethod
     def _check_range(value, start, end, check_outside_range):

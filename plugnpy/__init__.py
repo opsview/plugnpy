@@ -1,17 +1,16 @@
 """plugnpy - A Simple Python Library for creating Opsview Opspack plugins"""
 
-__version__ = '2.0.8'
+__version__ = '2.0.12'
 __program_name__ = 'plugnpy'
 
 from .check import Check
 from .exception import ParamError, ParamErrorWithHelp, ResultError, AssumedOK, InvalidMetricThreshold, InvalidMetricName
-from .parser import Parser
 from .metric import Metric
-from .cachemanager import CacheManagerClient, CacheManagerUtils
-from .utils import hash_string, dynamic_import, import_modules
+from .parser import Parser
 
 __all__ = [
-    'Check', 'ParamError', 'ParamErrorWithHelp', 'ResultError', 'AssumedOK', 'InvalidMetricThreshold',
-    'InvalidMetricName', 'Parser', 'Metric', 'CacheManagerClient', 'CacheManagerUtils',
-    'hash_string', 'dynamic_import', 'import_modules'
+    'Check',
+    'ParamError', 'ParamErrorWithHelp', 'ResultError', 'AssumedOK', 'InvalidMetricThreshold', 'InvalidMetricName',
+    'Metric',
+    'Parser',
 ]

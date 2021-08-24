@@ -6,7 +6,7 @@
 # ------------------------------------------------------------------------------
 
 # List special make targets that are not associated with files
-.PHONY: help venv version wheel test lint doc format clean
+.PHONY: help venv3 version verify test tox3 lint doc format clean
 
 # Use bash as shell (Note: Ubuntu now uses dash which doesn't support PIPESTATUS).
 SHELL=/bin/bash
@@ -32,7 +32,7 @@ PKGNAME=${VENDOR}-${PROJECT}
 # Current directory
 CURRENTDIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
-# Path to python3
+# Path to python
 PYTHON3_BIN=/opt/opsview/python3/bin/python3
 
 # --- MAKE TARGETS ---
@@ -43,11 +43,11 @@ help:
 	@echo "$(PROJECT) Makefile."
 	@echo "The following commands are available:"
 	@echo ""
-	@echo "    make venv       : Set up development virtual environment"
+	@echo "    make venv3      : Set up development virtual environment"
 	@echo "    make version    : Set version from VERSION file"
 	@echo "    make build      : Build a Wheel package"
 	@echo "    make verify     : Run tests and linting"
-	@echo "    make test       : Execute tests in py27 and py37 envs"
+	@echo "    make test       : Execute tests in py3 env"
 	@echo "    make lint       : Evaluate code"
 	@echo "    make doc        : Start a server to display source code documentation"
 	@echo "    make format     : Format the source code"
@@ -56,34 +56,23 @@ help:
 
 all: help
 
-# Build dev env
-venv: venv/bin/activate
-
-venv/bin/activate: requirements.txt setup.py
-	test -d .venv || virtualenv .venv
-	source .venv/bin/activate ; \
-	pip install -r requirements.txt ; \
-	pip install -e '.[test]' ; \
-	pip install -e '.[examples]'
-
 # Build dev env for python3
 venv3: venv3/bin/activate
 
 venv3/bin/activate: requirements.txt setup.py
-	test -d .venv3 || ${PYTHON3_BIN} -m venv .venv3
-	source .venv3/bin/activate ; \
-	pip install -r requirements.txt ; \
-	pip install -e '.[test]' ; \
-	pip install -e '.[examples]'
+	test -d .venv3 || (${PYTHON3_BIN} -m venv .venv3 \
+	&& .venv3/bin/pip install -r requirements.txt \
+	&& .venv3/bin/pip install -e '.[test]' \
+	&& .venv3/bin/pip install -e '.[examples]')
 
 # Set the version from VERSION file
 version:
 	sed -i "s/__version__.*$$/__version__ = '$(VERSION)'/" plugnpy/__init__.py
 
 # Build a Wheel package
-build: clean version venv
+build: clean version venv3
 	cp LICENSE README.md plugnpy; \
-	source .venv/bin/activate ; \
+	source .venv3/bin/activate ; \
 	python setup.py sdist bdist_wheel; \
 	rm plugnpy/LICENSE plugnpy/README.md
 
@@ -91,24 +80,19 @@ build: clean version venv
 verify: test lint
 
 # Test using tox
-test: venv
-	source .venv/bin/activate ; \
+test: venv3
+	source .venv3/bin/activate ; \
 	python -m tox ; \
 	coverage html
 
-# Run tests only on python2
-tox2: venv
-	source .venv/bin/activate ; \
-	python -m tox -e py27
-
-# Run tests only on python3
+# Run tests on python3
 tox3: venv3
 	source .venv3/bin/activate ; \
-	python -m tox -e py37
+	python -m tox -e py3
 
 # Evaluate code
-lint: venv
-	source .venv/bin/activate ; \
+lint: venv3
+	source .venv3/bin/activate ; \
 	pyflakes ${PROJECT} ; \
 	pylint ${PROJECT} ; \
 	pycodestyle --max-line-length=120 ${PROJECT}

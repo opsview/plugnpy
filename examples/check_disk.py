@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2003-2019 Opsview Limited. All rights reserved
+# Copyright (C) 2003-2021 Opsview Limited. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import plugnpy
+from plugnpy.cachemanager import CacheManagerUtils
 import psutil
 
 
@@ -45,8 +46,8 @@ if __name__ == "__main__":
         ttl = 900
 
         # get data via the cache manager, caches the data if it does not exist in the cache manager
-        disk_usage = plugnpy.CacheManagerUtils.get_via_cachemanager(args.no_cachemanager, args.mode, ttl,
-                                                                    get_disk_usage)
+        disk_usage = CacheManagerUtils.get_via_cachemanager(args.no_cachemanager, args.mode, ttl,
+                                                            get_disk_usage)
         check.add_metric('disk_usage', disk_usage.percent, '%', args.warning, args.critical)
 
     check.final()

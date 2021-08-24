@@ -69,6 +69,7 @@ setup(
             'pycodestyle',
             'pylint',
             'pyflakes',
+            'wheel',
         ],
         'examples': [
             'psutil',

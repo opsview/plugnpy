@@ -2,12 +2,11 @@
 Check class, contains Check Object that controls the check execution.
 """
 
-from __future__ import print_function
+import sys
 from .metric import Metric
-from .exception import InvalidMetricName
 
 
-class Check(object):
+class Check():
     """Object for defining and running Opsview Service Checks.
 
     Keyword Arguments:
@@ -23,24 +22,13 @@ class Check(object):
 
     def add_metric_obj(self, metric_obj):
         """Add a metric to the check's performance data from an existing Metric object"""
-        self.add_metric(metric_obj.name,
-                        metric_obj.value,
-                        metric_obj.unit,
-                        metric_obj.warning_threshold,
-                        metric_obj.critical_threshold,
-                        metric_obj.display_format,
-                        metric_obj.display_in_perf,
-                        metric_obj.display_in_summary,
-                        metric_obj.display_name,
-                        metric_obj.convert_metric,
-                        metric_obj.si_bytes_conversion,
-                        metric_obj.summary_precision,
-                        metric_obj.perf_data_precision)
+        self.metrics.append(metric_obj)
 
-    def add_metric(self, name, value, unit='', warning_threshold='',  # pylint: disable=too-many-arguments
-                   critical_threshold='', display_format='{name} is {value}{unit}', display_in_perf=True,
-                   display_in_summary=True, display_name=None, convert_metric=None, si_bytes_conversion=False,
-                   summary_precision=2, perf_data_precision=2):
+    def add_metric(  # pylint: disable=too-many-arguments, too-many-locals
+            self, name, value, unit='', warning_threshold=None,
+            critical_threshold=None, display_format='{name} is {value}{unit}', display_in_perf=True,
+            display_in_summary=True, display_name=None, convert_metric=None, si_bytes_conversion=False,
+            summary_precision=2, perf_data_precision=2, message=''):
         """Add a metric to the check's performance data.
 
         Keyword Arguments:
@@ -57,19 +45,18 @@ class Check(object):
         - display_in_perf -- Whether to print the metric in performance data (default: True)
         - convert_metric -- Whether to convert the metric value to a more human friendly unit (default: False)
         - si_bytes_conversion -- Whether to convert values using the SI standard, uses IEC by default (default: False)
-        - precision -- The number of decimal places to round the metric value to (default 2)
+        - summary_precision -- The number of decimal places to round the metric value in the summary to (default 2)
+        - per_data_precision -- The number of decimal places to round the metric value in the perf data to (default 2)
+        - message -- Alternative message to print
         """
-
-        if "'" in name:
-            raise InvalidMetricName("Metric names cannot contain \"'\".")
-        if "=" in name:
-            raise InvalidMetricName("Metric names cannot contain \"=\".")
-
-        metric = Metric(name, value, unit, warning_threshold or '', critical_threshold or '',
-                        display_format=display_format, display_in_perf=display_in_perf,
-                        display_in_summary=display_in_summary, display_name=display_name,
-                        convert_metric=convert_metric, si_bytes_conversion=si_bytes_conversion,
-                        summary_precision=summary_precision, perf_data_precision=perf_data_precision)
+        metric = Metric(
+            name, value, unit, warning_threshold, critical_threshold,
+            display_format=display_format, display_in_perf=display_in_perf,
+            display_in_summary=display_in_summary, display_name=display_name,
+            convert_metric=convert_metric, si_bytes_conversion=si_bytes_conversion,
+            summary_precision=summary_precision, perf_data_precision=perf_data_precision,
+            message=message,
+        )
         self.metrics.append(metric)
 
     def add_message(self, message):
@@ -81,7 +68,7 @@ class Check(object):
         Note: existing messages and metrics are discarded.
         """
         print("{0} {1} - {2}".format(self.state_type, Check.STATUS[code], message))
-        exit(code)
+        sys.exit(code)
 
     def exit_ok(self, message):
         """Exits with specified message and OK exit status.
@@ -119,4 +106,4 @@ class Check(object):
         exit_code = max([metric.state for metric in self.metrics])
 
         print("{0} {1} - {2}".format(self.state_type, Check.STATUS[exit_code], summary))
-        exit(exit_code)
+        sys.exit(exit_code)

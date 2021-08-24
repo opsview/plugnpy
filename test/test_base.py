@@ -1,5 +1,6 @@
 import pytest
 
+
 def raise_or_assert(callback, raises, expected):
     """
     Assert that an exception is raised of type 'raises' and the expected value is 'expected'
