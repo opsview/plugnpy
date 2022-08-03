@@ -67,7 +67,7 @@ class Check():
         """Exits with specified message and specified exit status.
         Note: existing messages and metrics are discarded.
         """
-        print("{0} {1} - {2}".format(self.state_type, Check.STATUS[code], message))
+        print(f"{self.state_type} {Check.STATUS[code]} - {message}")
         sys.exit(code)
 
     def exit_ok(self, message):
@@ -99,11 +99,11 @@ class Check():
         human_results = [str(metric) for metric in self.metrics if metric.display_in_summary]
         perf_results = [metric.perf_data for metric in self.metrics if metric.display_in_perf]
 
-        summary = "{0}{1}{2}".format(self.sep.join(human_results),
+        summary = "{0}{1}{2}".format(self.sep.join(human_results),  # pylint: disable=consider-using-f-string
                                      ' | ' if perf_results else '',
                                      ' '.join(perf_results))
 
-        exit_code = max([metric.state for metric in self.metrics])
+        exit_code = max(metric.state for metric in self.metrics)
 
-        print("{0} {1} - {2}".format(self.state_type, Check.STATUS[exit_code], summary))
+        print(f"{self.state_type} {Check.STATUS[exit_code]} - {summary}")
         sys.exit(exit_code)

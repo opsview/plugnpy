@@ -86,7 +86,7 @@ class CacheManagerUtils:  # pylint: disable=too-few-public-methods
         try:
             response = CacheManagerUtils.client.get_data(key)
         except SocketError as ex:
-            raise ResultError("Failed to connect to cache manager: {0}".format(ex)) from None
+            raise ResultError(f"Failed to connect to cache manager: {ex}") from None
         data, lock = response['data'], response['lock']
         if lock:
             # Any exceptions in the function call will be stored in the cache manager under the 'error' key
@@ -192,4 +192,4 @@ class CacheManagerClient:  # pragma: no cover
     def _check_for_error(self, response):
         if (response.status_code < self.HTTP_STATUS_OK_MIN) or (response.status_code > self.HTTP_STATUS_OK_MAX):
             raw_body = response.read()
-            raise ResultError("{0}: {1} - {2}".format(response.status_code, response.status_message, raw_body))
+            raise ResultError(f"{response.status_code}: {response.status_message} - {raw_body}")

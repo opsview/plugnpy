@@ -12,7 +12,7 @@ SECONDS_IN_DAY = 86400
 
 def hash_string(string):
     """Generate a SHA-256 Hash."""
-    return hashlib.sha256(string.encode('ascii')).hexdigest()
+    return hashlib.sha256(string.encode('utf-8')).hexdigest()
 
 
 def convert_seconds(count_seconds):
@@ -23,15 +23,15 @@ def convert_seconds(count_seconds):
     seconds = count_seconds % SECONDS_IN_MINUTE
     summary = []
     if days:
-        summary.append("{0:.0f}d".format(days))
+        summary.append(f"{days:.0f}d")
     if hours:
-        summary.append("{0:.0f}h".format(hours))
+        summary.append(f"{hours:.0f}h")
     if minutes:
-        summary.append("{0:.0f}m".format(minutes))
+        summary.append(f"{minutes:.0f}m")
     if summary:
         output = ' '.join(summary)
     else:
-        output = "{0:.0f}s".format(seconds)
+        output = f"{seconds:.0f}s"
     return output
 
 

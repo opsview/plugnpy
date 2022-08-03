@@ -77,7 +77,7 @@ build: clean version venv3
 	rm plugnpy/LICENSE plugnpy/README.md
 
 # Run tests and linting
-verify: test lint
+verify: lint test
 
 # Test using tox
 test: venv3
