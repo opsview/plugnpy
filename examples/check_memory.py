@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2003-2023 Opsview Limited. All rights reserved
+# Copyright (C) 2003-2024 Opsview Limited. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
