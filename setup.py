@@ -41,8 +41,8 @@ setup(
     description='A Simple Python Library for creating Opsview Opspack plugins',
     long_description=read('README.md'),
     url='https://github.com/opsview/plugnpy',
-    author='Opsview Ltd',
-    author_email='support@opsview.com',
+    author='ITRS Group Ltd',
+    author_email='',
     license='Apache-2.0',
     classifiers=[
         'Intended Audience :: Developers',

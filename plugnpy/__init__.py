@@ -1,6 +1,6 @@
 """plugnpy - A Simple Python Library for creating Opsview Opspack plugins"""
 
-__version__ = '2.0.14'
+__version__ = '2.0.15'
 __program_name__ = 'plugnpy'
 
 from .check import Check
