@@ -15,10 +15,10 @@ SHELL=/bin/bash
 CVSPATH=github.com/opsview/plugnpy
 
 # Project owner
-OWNER=Opsview Ltd
+OWNER=ITRS Group Ltd
 
 # Project vendor
-VENDOR=opsview
+VENDOR=ITRS Group Ltd
 
 # Project name
 PROJECT=plugnpy
