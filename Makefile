@@ -1,9 +1,5 @@
-# MAKEFILE
-#
-# @link        https://github.com/opsview/plugnpy
-#
-# This makefile is based on https://github.com/tecnickcom/pygen by Nicola Asuni (MIT license)
-# ------------------------------------------------------------------------------
+# Makefile for plugin-lib-python
+# Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
 
 # List special make targets that are not associated with files
 .PHONY: help venv3 version verify test tox3 lint doc format clean
@@ -11,23 +7,11 @@
 # Use bash as shell (Note: Ubuntu now uses dash which doesn't support PIPESTATUS).
 SHELL=/bin/bash
 
-# CVS path (path to the parent dir containing the project)
-CVSPATH=github.com/opsview/plugnpy
-
-# Project owner
-OWNER=ITRS Group Ltd
-
-# Project vendor
-VENDOR=ITRS Group Ltd
-
 # Project name
 PROJECT=plugnpy
 
 # Project version
 VERSION=$(shell cat VERSION)
-
-# Name of RPM or DEB package
-PKGNAME=${VENDOR}-${PROJECT}
 
 # Current directory
 CURRENTDIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))

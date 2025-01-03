@@ -7,7 +7,7 @@
 [![Master Coverage Status](https://coveralls.io/repos/opsview/plugnpy/badge.svg?branch=master&service=github)](https://coveralls.io/github/opsview/plugnpy?branch=master)
 
 * **category**    Libraries
-* **copyright**   2003-2024 ITRS Group Ltd
+* **copyright**   2003-2025 ITRS Group Ltd
 * **license**     Apache License Version 2.0 (see [LICENSE](LICENSE))
 * **link**        https://github.com/opsview/plugnpy
 
