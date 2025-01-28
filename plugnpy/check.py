@@ -24,7 +24,7 @@ class Check():
         """Add a metric to the check's performance data from an existing Metric object"""
         self.metrics.append(metric_obj)
 
-    def add_metric(  # pylint: disable=too-many-arguments, too-many-locals
+    def add_metric(  # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
             self, name, value, unit='', warning_threshold=None,
             critical_threshold=None, display_format='{name} is {value}{unit}', display_in_perf=True,
             display_in_summary=True, display_name=None, convert_metric=None, si_bytes_conversion=False,

@@ -19,6 +19,9 @@ CURRENTDIR=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 # Path to python
 PYTHON3_BIN=/opt/opsview/python3/bin/python3
 
+# Command to invoke pip
+PIP_INSTALL=.venv3/bin/python -m pip install
+
 # --- MAKE TARGETS ---
 
 # Display general help about this command
@@ -31,7 +34,7 @@ help:
 	@echo "    make version    : Set version from VERSION file"
 	@echo "    make build      : Build a Wheel package"
 	@echo "    make verify     : Run tests and linting"
-	@echo "    make test       : Execute tests in py3 env"
+	@echo "    make test       : Execute tests in plugnpy env"
 	@echo "    make lint       : Evaluate code"
 	@echo "    make doc        : Start a server to display source code documentation"
 	@echo "    make format     : Format the source code"
@@ -45,9 +48,9 @@ venv3: venv3/bin/activate
 
 venv3/bin/activate: requirements.txt setup.py
 	test -d .venv3 || (${PYTHON3_BIN} -m venv .venv3 \
-	&& .venv3/bin/pip install -r requirements.txt \
-	&& .venv3/bin/pip install -e '.[test]' \
-	&& .venv3/bin/pip install -e '.[examples]')
+	&& $(PIP_INSTALL) -r requirements.txt \
+	&& $(PIP_INSTALL) -e '.[test]' \
+	&& $(PIP_INSTALL) -e '.[examples]')
 
 # Set the version from VERSION file
 version:
@@ -72,7 +75,7 @@ test: venv3
 # Run tests on python3
 tox3: venv3
 	source .venv3/bin/activate ; \
-	python -m tox -e py3
+	python -m tox -e plugnpy
 
 # Evaluate code
 lint: venv3

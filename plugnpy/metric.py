@@ -87,7 +87,7 @@ class Metric:  # pylint: disable=too-many-instance-attributes
         UNIT_EXA: lambda factor: 1.0 / factor ** 6,
     }
 
-    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
+    def __init__(  # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
             self, name, value, unit,
             warning_threshold=None,
             critical_threshold=None,
@@ -124,12 +124,14 @@ class Metric:  # pylint: disable=too-many-instance-attributes
         try:
             self.summary_precision = int(summary_precision)
         except (ValueError, TypeError) as ex:
-            raise Exception(f"Invalid value for summary precision '{summary_precision}': {ex}") from None
+            raise Exception(  # pylint: disable=broad-exception-raised
+                f"Invalid value for summary precision '{summary_precision}': {ex}") from None
 
         try:
             self.perf_data_precision = int(perf_data_precision)
         except (ValueError, TypeError) as ex:
-            raise Exception(f"Invalid value for performance data precision '{perf_data_precision}': {ex}") from None
+            raise Exception(  # pylint: disable=broad-exception-raised
+                f"Invalid value for performance data precision '{perf_data_precision}': {ex}") from None
         try:
             self.value = float(self.value)
             self.perf_data = Metric.calculate_perf_data(
@@ -171,8 +173,8 @@ class Metric:  # pylint: disable=too-many-instance-attributes
         return status
 
     @staticmethod
-    def calculate_perf_data(name, value, unit, warning_threshold,  # pylint: disable=too-many-arguments
-                            critical_threshold, precision=2):
+    def calculate_perf_data(name, value, unit,  # pylint: disable=too-many-arguments, too-many-positional-arguments
+                            warning_threshold, critical_threshold, precision=2):
         """Returns the perf data string for the check"""
         value = f'{value:.{precision}f}'
         return "{0}={1}{2}{3}{4}{5}{6}".format(  # pylint: disable=consider-using-f-string
@@ -187,7 +189,8 @@ class Metric:  # pylint: disable=too-many-instance-attributes
         try:
             value = float(value)
         except (ValueError, TypeError) as ex:
-            raise Exception(f"Invalid value for value '{value}': {ex}") from None
+            raise Exception(  # pylint: disable=broad-exception-raised
+                f"Invalid value for value '{value}': {ex}") from None
 
         if unit in Metric.CONVERTIBLE_UNITS:
             conversion_factor = Metric._get_conversion_factor(unit, si_bytes_conversion)

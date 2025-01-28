@@ -117,8 +117,8 @@ class CacheManagerClient:  # pragma: no cover
     HTTP_STATUS_OK_MIN = 200
     HTTP_STATUS_OK_MAX = 299
 
-    def __init__(self, host, port, namespace, concurrency=1,  # pylint: disable=too-many-arguments
-                 connection_timeout=30, network_timeout=30):
+    def __init__(self, host, port, namespace,  # pylint: disable=too-many-arguments, too-many-positional-arguments
+                 concurrency=1, connection_timeout=30, network_timeout=30):
         """Constructor for Cache Manager Client
 
         :param host: Host IP or name of the cache manager.
