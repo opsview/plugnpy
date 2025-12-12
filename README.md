@@ -1,7 +1,7 @@
 # plugnpy
 
 
-*A Simple Python Library for creating [Opsview Opspack plugins](https://docs.itrsgroup.com/docs/opsview/6.11.6/configuration/service-checks-and-host/active-checks/index.html).*
+*A Simple Python Library for creating [Opsview Opspack plugins](https://docs.itrsgroup.com/docs/opsview/6.11.7/configuration/service-checks-and-host/active-checks/index.html).*
 
 [![Master Build Status](https://secure.travis-ci.org/opsview/plugnpy.png?branch=master)](https://travis-ci.org/opsview/plugnpy?branch=master)
 [![Master Coverage Status](https://coveralls.io/repos/opsview/plugnpy/badge.svg?branch=master&service=github)](https://coveralls.io/github/opsview/plugnpy?branch=master)
@@ -268,8 +268,8 @@ To use the parser, create an object of type **plugnpy.Parser** and use as you wo
 | ParamErrorWithHelp     | To be thrown when user input causes the issue (i.e, wrong password, invalid input type, etc.) and help text needs to be printed.                                     |
 | ResultError            | To be thrown when the API/Metric Check returns either no result (when this isn't expected) or returns a result that is essentially unusable.                         |
 | AssumedOK              | To be thrown when the status of the check cannot be identified. This is usually used when the check requires the result of a previous run and this is the first run. |
-| InvalidMetricThreshold | This shouldn't be thrown in a plugin. It is used internally in checks.py when an invalid metric threshold is passed in.                                              |
-| InvalidMetricName      | This shouldn't be thrown in a plugin. It is used internally in checks.py when an invalid metric name is passed in.                                                   |
+| InvalidMetricThreshold | This should not be thrown in a plugin. It is used internally in checks.py when an invalid metric threshold is passed in.                                             |
+| InvalidMetricName      | This should not be thrown in a plugin. It is used internally in checks.py when an invalid metric name is passed in.                                                  |
 
 ## Cache Manager client
 
@@ -409,6 +409,8 @@ and passing in the value `45` will return `45s`.
 
 The State Manager provides a persistent data store for plugins.
 Data is held until its `time-to-live` expires and will remain in the store across system reboots and upgrades.
+
+*Requires Opsview 6.11.7 or later.*
 
 ### StateManagerClient
 A simple client to store or fetch data from the state manager.
