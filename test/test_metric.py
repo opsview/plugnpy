@@ -1,3 +1,8 @@
+"""
+Unit tests for plugnpy.metric
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
+"""
+
 import functools
 
 import pytest

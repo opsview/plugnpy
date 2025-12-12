@@ -1,3 +1,8 @@
+"""
+Unit tests for plugnpy.check
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
+"""
+
 import os
 
 import pytest

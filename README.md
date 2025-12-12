@@ -1,7 +1,7 @@
 # plugnpy
 
 
-*A Simple Python Library for creating [Opsview Opspack plugins](https://github.com/opsview/Opsview-Integrations/blob/master/WHAT_IS_A_MONITORING_PLUGIN.md).*
+*A Simple Python Library for creating [Opsview Opspack plugins](https://docs.itrsgroup.com/docs/opsview/6.11.6/configuration/service-checks-and-host/active-checks/index.html).*
 
 [![Master Build Status](https://secure.travis-ci.org/opsview/plugnpy.png?branch=master)](https://travis-ci.org/opsview/plugnpy?branch=master)
 [![Master Coverage Status](https://coveralls.io/repos/opsview/plugnpy/badge.svg?branch=master&service=github)](https://coveralls.io/github/opsview/plugnpy?branch=master)
@@ -403,3 +403,80 @@ For values more than `60` seconds, the seconds value will be omitted from the ou
 value will be returned in seconds.
 For example passing in the value `90060` to **convert_seconds** will return `1d 1h 1m`,
 and passing in the value `45` will return `45s`.
+
+
+## State Manager client
+
+The State Manager provides a persistent data store for plugins.
+Data is held until its `time-to-live` expires and will remain in the store across system reboots and upgrades.
+
+### StateManagerClient
+A simple client to store or fetch data from the state manager.
+
+The state manager client requires the **namespace** of the plugin and the **host** ip and **port** of the state manager
+to be supplied. These are provided to the plugin as `opsview-executor` encrypted environment variables.
+
+```python
+host = os.environ.get('OPSVIEW_STATE_MANAGER_HOST')
+port = os.environ.get('OPSVIEW_STATE_MANAGER_PORT')
+namespace = os.environ.get('OPSVIEW_STATE_MANAGER_NAMESPACE')
+```
+
+A state manager client can then be created using these values:
+```python
+client = StateManagerClient(host, port, namespace)
+```
+
+Two methods are available with the State Manager client, `store_data` and `fetch_data`.
+These methods are be used to save and retrieve data respectively.
+
+#### store_data
+
+ - The `store_data` method can be called with the `key` and `data` parameters,
+   this will store the specified data, under the given key.
+ - The `ttl` parameter is used to specify the number of seconds for which the data is valid.
+ - An optional `timestamp` parameter can be used to mark the time the data was obtained.
+   This can be useful when there is a degree of latency between the source of the data and the call to the `store_data` method.
+   If `timestamp` is in the future, then the current time will be used instead.
+
+#### fetch_data
+
+The `fetch_data` method can be called with the `key` parameter to retrieve data stored under the specified key.
+
+```python
+data = client.fetch_data(key)
+```
+
+### StateManagerUtils
+
+To simplify calls to the state manager even further, **plugnpy** provides this utility class.
+It has two methods for storing and fetching data, and handles the underlying connection details.
+
+```python
+from plugnpy.statemanager import StateManagerUtils
+
+client = StateManagerUtils()
+```
+
+Once the client has been created, the `store_data` and `fetch_data` methods can be used to save and retrieve data respectively.
+
+#### store_data
+
+ - The `store_data` method can be called with the `key` and `data` parameters,
+   this will store the specified data, under the given key.
+ - The `ttl` parameter is used to specify the number of seconds for which the data is valid.
+ - An optional `timestamp` parameter can be used to mark the time the data was obtained.
+   This can be useful when there is a degree of latency between the source of the data and the call to the `store_data` method.
+   If `timestamp` is in the future, then the current time will be used instead.
+
+```python
+client.store_data(key, data, ttl=3600)
+```
+
+#### fetch_data
+
+The `fetch_data` method can be called with the `key` parameter to retrieve data stored under the specified key.
+
+```python
+data = client.fetch_data(key)
+```

@@ -1,6 +1,7 @@
 """
 Exceptions to be called by service check plugins when the appropriate situations arrive.
 None of these have special behaviour.
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
 """
 
 
@@ -28,3 +29,7 @@ class InvalidMetricThreshold(Exception):
 
 class InvalidMetricName(Exception):
     """To be thrown when you pass an invalid metric name."""
+
+
+class StateManagerStoreError(Exception):
+    """ Used to report a State Manager error """

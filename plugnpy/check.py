@@ -1,5 +1,6 @@
 """
 Check class, contains Check Object that controls the check execution.
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
 """
 
 import sys
@@ -46,7 +47,7 @@ class Check():
         - convert_metric -- Whether to convert the metric value to a more human friendly unit (default: False)
         - si_bytes_conversion -- Whether to convert values using the SI standard, uses IEC by default (default: False)
         - summary_precision -- The number of decimal places to round the metric value in the summary to (default 2)
-        - per_data_precision -- The number of decimal places to round the metric value in the perf data to (default 2)
+        - perf_data_precision -- The number of decimal places to round the metric value in the perf data to (default 2)
         - message -- Alternative message to print
         """
         metric = Metric(

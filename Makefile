@@ -48,6 +48,8 @@ venv3: venv3/bin/activate
 
 venv3/bin/activate: requirements.txt setup.py
 	test -d .venv3 || (${PYTHON3_BIN} -m venv .venv3 \
+	&& .venv3/bin/python -m ensurepip --upgrade \
+	&& $(PIP_INSTALL) --upgrade pip \
 	&& $(PIP_INSTALL) -r requirements.txt \
 	&& $(PIP_INSTALL) -e '.[test]' \
 	&& $(PIP_INSTALL) -e '.[examples]')

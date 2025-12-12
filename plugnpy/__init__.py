@@ -1,4 +1,7 @@
-"""plugnpy - A Simple Python Library for creating Opsview Opspack plugins"""
+"""
+plugnpy - A Simple Python Library for creating Opsview Opspack plugins
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
+"""
 
 __version__ = '2.0.19'
 __program_name__ = 'plugnpy'
