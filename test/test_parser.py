@@ -1,14 +1,14 @@
 """
-Unit tests for plugnpy.parser
-Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
+Unit tests for PlugNPy parser.py
+Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
 """
 
 import os
 import sys
-
 import pytest
-from plugnpy.parser import Parser, ExecutionStyle
+
 from argparse import Namespace
+from plugnpy.parser import Parser, ExecutionStyle
 
 
 def test_copyright(capsys):
@@ -50,6 +50,19 @@ See https://docs.itrsgroup.com/docs/opsview/current/secure-arguments/ for more i
             "",
             0,
             id='no_stdin_no_cmdline_args'
+        ),
+        pytest.param(
+            OSError(),
+            None,
+            ['script_name'],
+            '',
+            True,
+            None,
+            """NOTE: This plugin only accepts options via STDIN for security.
+See https://docs.itrsgroup.com/docs/opsview/current/secure-arguments/ for more information.""",
+            "",
+            0,
+            id='stdin_not_accessible'
         ),
         pytest.param(
             False,
@@ -181,40 +194,24 @@ See https://docs.itrsgroup.com/docs/opsview/current/secure-arguments/ for more i
             0,
             id='stdin_empty'
         ),
-        pytest.param(
-            AttributeError,
-            None,
-            ['script_name', '--cmdline-option', 'cmdline-value'],
-            'OPSVIEW_SCRIPTRUNNER',
-            True,
-            None,
-            None,
-            """This plugin only accepts options via STDIN for security.
-You have provided command line arguments.
-Please reconfigure this plugin to use the correct execution style.
-""",
-            3,
-            id='stdin_AttributeError_and_cmdline_args_scriptrunner'
-        ),
     ]
 )
 def test_get_stdin_args(
-        capsys, mocker, monkeypatch,
-        mock_uses_stdin, mock_readlines, mock_argv, mock_opsview_scriptrunner,
-        mock_is_file, expected_args, expected_epilog, expected_out, expected_exit_code,
+        capsys, mocker, mock_uses_stdin, mock_readlines, mock_argv, mock_opsview_scriptrunner,
+        mock_is_file, expected_args, expected_epilog, expected_out, expected_exit_code
 ):
-    monkeypatch.setenv('OPSVIEW_SCRIPTRUNNER', mock_opsview_scriptrunner)
-    mocker.patch.object(sys, 'argv', mock_argv)
-    if isinstance(mock_uses_stdin, bool):
+    os.environ['OPSVIEW_SCRIPTRUNNER'] = mock_opsview_scriptrunner
+    sys.argv = mock_argv
+    if isinstance(mock_uses_stdin, Exception):
+        mock_fstat = mock_uses_stdin
+    else:
         mock_fstat = mocker.Mock()
         mock_fstat.st_mode = 4480 if mock_uses_stdin else 8592
-    else:
-        mock_fstat = mock_uses_stdin
 
-    mocker.patch('plugnpy.parser.sys.stdin.fileno', return_value=0)
-    mocker.patch('plugnpy.parser.os.fstat', side_effect=[mock_fstat])
-    mocker.patch('plugnpy.parser.sys.stdin.readlines', return_value=mock_readlines)
-    mocker.patch('plugnpy.parser.os.path.isfile', return_value=mock_is_file)
+    mocker.patch('sys.stdin.fileno', return_value=0)
+    mocker.patch('os.fstat', side_effect=[mock_fstat])
+    mocker.patch('sys.stdin.readlines', return_value=mock_readlines)
+    mocker.patch('os.path.isfile', return_value=mock_is_file)
 
     parser = Parser(execution_style=ExecutionStyle.STDIN_ARGS)
     parser.add_argument('--test', help='test')
@@ -233,22 +230,21 @@ def test_get_stdin_args(
     assert captured.out == expected_out
     assert captured.err == ""
 
-
-@pytest.mark.parametrize('known_args, stdin_args, expected', [
-    pytest.param(None, None, (Namespace(), []), id="no_args"),
-    pytest.param(['--test', 'test'], None, (Namespace(), ['--test', 'test']), id="known_args"),
-    pytest.param(None, ['--test', 'test'], (Namespace(), ['--test', 'test']), id="stdin_args"),
-])
-
-def test_parse_known_args(mocker, monkeypatch, known_args, stdin_args, expected):
+def test_parse_known_args(mocker):
     mock_fstat = mocker.Mock()
     mock_fstat.st_mode = 8592
-    monkeypatch.setenv('OPSVIEW_SCRIPTRUNNER', '')
-    mocker.patch.object(sys, 'argv', ['script_name'])
-    mocker.patch('plugnpy.parser.sys.stdin.fileno', return_value=0)
-    mocker.patch('plugnpy.parser.os.fstat', return_value=mock_fstat)
-    mocker.patch('plugnpy.parser.sys.stdin.readlines', return_value=[])
+    mocker.patch('sys.stdin.fileno', return_value=0)
+    mocker.patch('os.fstat', return_value=mock_fstat)
+    mocker.patch('sys.stdin.readlines', return_value=[])
     parser = Parser(execution_style=ExecutionStyle.STDIN_ARGS)
-    parser._stdin_args = stdin_args
-    args = parser.parse_known_args(args=known_args)
-    assert args == expected
+    args = parser.parse_known_args()
+    assert args == (Namespace(), [])
+
+    # parse_known_args with existing args
+    args = parser.parse_known_args(args=['--test', 'test'])
+    assert args == (Namespace(), ['--test', 'test'])
+
+    # parse_known_args with already parsed stdin args
+    parser._stdin_args = ['--test', 'test']
+    args = parser.parse_known_args()
+    assert args == (Namespace(), ['--test', 'test'])

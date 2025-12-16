@@ -7,7 +7,6 @@ import os
 import json
 
 from socket import error as SocketError
-from typing import Optional
 
 from geventhttpclient import HTTPClient
 

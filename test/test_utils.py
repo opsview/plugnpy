@@ -1,6 +1,6 @@
 """
-Unit tests for plugnpy.utils
-Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
+Unit tests for PlugNPy utils.py
+Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
 """
 
 import pytest

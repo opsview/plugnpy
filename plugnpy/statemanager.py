@@ -13,7 +13,6 @@ from typing import Optional
 from geventhttpclient import HTTPClient
 
 from .exception import StateManagerStoreError
-from .utils import hash_string
 
 ESCAPE_CHARACTER = '\\'
 DELIMITER = '#'
@@ -71,9 +70,11 @@ class StateManagerUtils:
 class StateManagerClient:
     """A simple client to contact the State Manager and set or get persistent data"""
 
+    # pylint: disable=duplicate-code
     HTTP_STATUS_OK_MIN = 200
     HTTP_STATUS_OK_MAX = 299
 
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(
             self, host, port, namespace,
             concurrency=1, connection_timeout=30, network_timeout=30
@@ -127,6 +128,7 @@ class StateManagerClient:
         if (response.status_code < self.HTTP_STATUS_OK_MIN) or (response.status_code > self.HTTP_STATUS_OK_MAX):
             raw_body = response.read()
             raise StateManagerStoreError(f"{response.status_code}: {response.status_message} - {raw_body}")
+    # pylint: enable=duplicate-code
 
     def fetch_data(self, key: str) -> Optional[str]:
         """ Fetch the data from the persistent storage, indexed by key.
@@ -158,7 +160,7 @@ class StateManagerClient:
         try:
             return json.loads(raw_body.decode('utf-8'))['data']
         except Exception as ex:
-            raise StateManagerStoreError(f"Unable to process response ({ex}) - {raw_body}")
+            raise StateManagerStoreError(f"Unable to process response ({ex}) - {raw_body}") from ex
 
     def close(self):
         """Close a client connection"""
