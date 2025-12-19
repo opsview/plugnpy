@@ -1,6 +1,8 @@
 """
 Metric Class.
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
 """
+
 from .exception import InvalidMetricName, InvalidMetricThreshold
 from .utils import convert_seconds
 

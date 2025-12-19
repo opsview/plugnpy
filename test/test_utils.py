@@ -1,3 +1,8 @@
+"""
+Unit tests for PlugNPy utils.py
+Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
+"""
+
 import pytest
 
 from plugnpy.utils import hash_string, dynamic_import, import_modules

@@ -1,9 +1,14 @@
+"""
+Unit tests for PlugNPy parser.py
+Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
+"""
+
 import os
 import sys
-
 import pytest
-from plugnpy.parser import Parser, ExecutionStyle
+
 from argparse import Namespace
+from plugnpy.parser import Parser, ExecutionStyle
 
 
 def test_copyright(capsys):
@@ -45,6 +50,19 @@ See https://docs.itrsgroup.com/docs/opsview/current/secure-arguments/ for more i
             "",
             0,
             id='no_stdin_no_cmdline_args'
+        ),
+        pytest.param(
+            OSError(),
+            None,
+            ['script_name'],
+            '',
+            True,
+            None,
+            """NOTE: This plugin only accepts options via STDIN for security.
+See https://docs.itrsgroup.com/docs/opsview/current/secure-arguments/ for more information.""",
+            "",
+            0,
+            id='stdin_not_accessible'
         ),
         pytest.param(
             False,
@@ -178,15 +196,20 @@ See https://docs.itrsgroup.com/docs/opsview/current/secure-arguments/ for more i
         ),
     ]
 )
-def test_get_stdin_args(capsys, mocker, mock_uses_stdin, mock_readlines, mock_argv, mock_opsview_scriptrunner,
-                        mock_is_file, expected_args, expected_epilog, expected_out, expected_exit_code):
+def test_get_stdin_args(
+        capsys, mocker, mock_uses_stdin, mock_readlines, mock_argv, mock_opsview_scriptrunner,
+        mock_is_file, expected_args, expected_epilog, expected_out, expected_exit_code
+):
     os.environ['OPSVIEW_SCRIPTRUNNER'] = mock_opsview_scriptrunner
     sys.argv = mock_argv
-    mock_fstat = mocker.Mock()
-    mock_fstat.st_mode = 4480 if mock_uses_stdin else 8592
+    if isinstance(mock_uses_stdin, Exception):
+        mock_fstat = mock_uses_stdin
+    else:
+        mock_fstat = mocker.Mock()
+        mock_fstat.st_mode = 4480 if mock_uses_stdin else 8592
 
     mocker.patch('sys.stdin.fileno', return_value=0)
-    mocker.patch('os.fstat', return_value=mock_fstat)
+    mocker.patch('os.fstat', side_effect=[mock_fstat])
     mocker.patch('sys.stdin.readlines', return_value=mock_readlines)
     mocker.patch('os.path.isfile', return_value=mock_is_file)
 

@@ -1,5 +1,9 @@
-import os
+"""
+Unit tests for PlugNPy check.py
+Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
+"""
 
+import os
 import pytest
 
 from plugnpy.check import Check
@@ -37,15 +41,10 @@ def test_add_metric_invalid_metric_name(metric_name, expected):
 
 
 @pytest.mark.parametrize('status, expected', [
-    ('ok', 0),
-    ('warning', 1),
-    ('critical', 2),
-    ('unknown', 3),
-], ids=[
-    'ok',
-    'warning',
-    'critical',
-    'unknown',
+    pytest.param('ok', 0, id="ok"),
+    pytest.param('warning', 1, id="warning"),
+    pytest.param('critical', 2, id="critical"),
+    pytest.param('unknown', 3, id="unknown"),
 ])
 def test_exit(capsys, status, expected):
     with pytest.raises(SystemExit) as e:

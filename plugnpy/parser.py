@@ -1,12 +1,12 @@
 """
 Argument Parser class for use in service checks.
 Based on argparse.ArgumentParser but overwrites exiting calls to exit Unknowns.
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
 """
 
 import argparse
 import json
 import os
-import select
 import sys
 import stat
 from gettext import gettext

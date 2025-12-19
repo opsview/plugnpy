@@ -1,9 +1,9 @@
 """
 Helpful utility functions.
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
 """
 
 import hashlib
-from six import iteritems
 
 SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = 3600
@@ -38,7 +38,7 @@ def convert_seconds(count_seconds):
 def import_modules(modules_to_import):
     """Dynamically import modules"""
     imported_modules = {}
-    for module, fromlist in iteritems(modules_to_import):
+    for module, fromlist in modules_to_import.items():
         imported_modules[module] = dynamic_import(module, fromlist)
     return imported_modules
 

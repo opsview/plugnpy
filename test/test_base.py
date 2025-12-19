@@ -1,3 +1,8 @@
+"""
+Support functions for unit tests
+Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
+"""
+
 import pytest
 
 

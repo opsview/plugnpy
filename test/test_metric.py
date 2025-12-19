@@ -1,5 +1,9 @@
-import functools
+"""
+Unit tests for PlugNPy metric.py
+Copyright (C) 2003-2025 ITRS Group Ltd. All rights reserved
+"""
 
+import functools
 import pytest
 
 from plugnpy.exception import InvalidMetricThreshold
@@ -8,19 +12,12 @@ from .test_base import raise_or_assert
 
 
 @pytest.mark.parametrize('value, si_bytes_conversion, display_format, raises, expected, convert_metric', [
-    (1024, False, '{name} is {value} {unit}', False, 'Memory is 1024.00 B', False),
-    (1024, False, '{value}{unit}', False, '1024.00B', False),
-    (1024, False, '{bad} {wrong}', KeyError, None, False),
-    (1024, False, '{name} is {value} {unit}', False, 'Memory is 1.00 KB', True),
-    (1000, True, '{name} is {value} {unit}', False, 'Memory is 1.00 KB', True),
-    ('GREEN', False, '{name} is {value}', False, 'Memory is GREEN', False),
-], ids=[
-    'convert_false',
-    'display_format',
-    'wrong_display_format',
-    'convert_si_units',
-    'convert_non_si_units',
-    'str_value',
+    pytest.param(1024, False, '{name} is {value} {unit}', False, 'Memory is 1024.00 B', False, id="convert_false"),
+    pytest.param(1024, False, '{value}{unit}', False, '1024.00B', False, id="display_format"),
+    pytest.param(1024, False, '{bad} {wrong}', KeyError, None, False, id="wrong_display_format"),
+    pytest.param(1024, False, '{name} is {value} {unit}', False, 'Memory is 1.00 KB', True, id="convert_si_units"),
+    pytest.param(1000, True, '{name} is {value} {unit}', False, 'Memory is 1.00 KB', True, id="convert_non_si_units"),
+    pytest.param('GREEN', False, '{name} is {value}', False, 'Memory is GREEN', False, id="str_value"),
 ])
 def test_str(value, si_bytes_conversion, display_format, raises, expected, convert_metric):
     raise_or_assert(
@@ -36,15 +33,10 @@ def test_str(value, si_bytes_conversion, display_format, raises, expected, conve
 
 
 @pytest.mark.parametrize('value, start, end, check_outside_range, expected', [
-    (1, 1, 100, True, False),
-    (0, 1, 100, True, True),
-    (1, 1, 100, False, True),
-    (0, 1, 100, False, False),
-], ids=[
-    'outside_ok',
-    'outside_ko',
-    'inside_ok',
-    'inside_ko',
+    pytest.param(1, 1, 100, True, False, id="outside_ok"),
+    pytest.param(0, 1, 100, True, True, id="outside_ko"),
+    pytest.param(1, 1, 100, False, True, id="inside_ok"),
+    pytest.param(0, 1, 100, False, False, id="inside_ko"),
 ])
 def test_check_range(value, start, end, check_outside_range, expected):
     assert Metric._check_range(value, start, end, check_outside_range) == expected
@@ -110,19 +102,12 @@ def test_convert_threshold(value, si_bytes_conversion, raises, expected):
 
 
 @pytest.mark.parametrize('value, is_start, raises, expected', [
-    ('~', False, False, Metric.P_INF),
-    ('~', True, False, Metric.N_INF),
-    ('-10K', True, False, -10000.0),
-    ('10', True, False, 10.0),
-    ('10K', True, False, 10000.0),
-    ('10S', True, InvalidMetricThreshold, None),
-], ids=[
-    'infinite',
-    'negative_infinite',
-    'negative_prefix',
-    'no_prefix',
-    'prefix',
-    'wrong_prefix',
+    pytest.param('~', False, False, Metric.P_INF, id="infinite"),
+    pytest.param('~', True, False, Metric.N_INF, id="negative_infinite"),
+    pytest.param('-10K', True, False, -10000.0, id="negative_prefix"),
+    pytest.param('10', True, False, 10.0, id="no_prefix"),
+    pytest.param('10K', True, False, 10000.0, id="prefix"),
+    pytest.param('10S', True, InvalidMetricThreshold, None, id="wrong_prefix"),
 ])
 def test_parse_threshold_limit(value, is_start, raises, expected):
     raise_or_assert(
@@ -131,38 +116,24 @@ def test_parse_threshold_limit(value, is_start, raises, expected):
 
 
 @pytest.mark.parametrize('threshold, raises, expected', [
-    ('@1:3', False, (1.0, 3.0, False)),
-    ('10', False, (0.0, 10.0, True)),
-    ('3:', False, (3.0, Metric.P_INF, True)),
-    ('~:5', False, (Metric.N_INF, 5.0, True)),
-    ('bad', InvalidMetricThreshold, None),
-    ('1MB:2MB', False, (1000000.0, 2000000.0, True)),
-    ('1KB:2MB', False, (1000.0, 2000000.0, True)),
-    ('-2:-1', False, (-2.0, -1.0, True)),
-    ('-2KB:-1KB', False, (-2000.0, -1000.0, True)),
-], ids=[
-    'inside_range',
-    'zero_start',
-    'infinite_end',
-    'normal_range',
-    'wrong_threshold',
-    'identical_conversion_factors',
-    'different_conversion_factors',
-    'negative',
-    'negative_conversion_factors',
+    pytest.param('@1:3', False, (1.0, 3.0, False), id="inside_range"),
+    pytest.param('10', False, (0.0, 10.0, True), id="zero_start"),
+    pytest.param('3:', False, (3.0, Metric.P_INF, True), id="infinite_end"),
+    pytest.param('~:5', False, (Metric.N_INF, 5.0, True), id="normal_range"),
+    pytest.param('bad', InvalidMetricThreshold, None, id="wrong_threshold"),
+    pytest.param('1MB:2MB', False, (1000000.0, 2000000.0, True), id="identical_conversion_factors"),
+    pytest.param('1KB:2MB', False, (1000.0, 2000000.0, True), id="different_conversion_factors"),
+    pytest.param('-2:-1', False, (-2.0, -1.0, True), id="negative"),
+    pytest.param('-2KB:-1KB', False, (-2000.0, -1000.0, True), id="negative_conversion_factors"),
 ])
 def test_parse_threshold(threshold, raises, expected):
     raise_or_assert(functools.partial(Metric._parse_threshold, threshold, Metric.SI_UNIT_FACTOR), raises, expected)
 
 
 @pytest.mark.parametrize('warning_threshold, critical_threshold, expected', [
-    ('50:120', '30:150', 0),
-    ('110:150', '90:170', 1),
-    ('130:150', '110:170', 2),
-], ids=[
-    'ok',
-    'warning',
-    'critical',
+    pytest.param('50:120', '30:150', 0, id="ok"),
+    pytest.param('110:150', '90:170', 1, id="warning"),
+    pytest.param('130:150', '110:170', 2, id="critical"),
 ])
 def test_state(warning_threshold, critical_threshold, expected):
     assert Metric('Memory', 100, 'bytes', warning_threshold, critical_threshold).state == expected
@@ -176,22 +147,31 @@ def test_precision():
     assert '10.123' not in str(metric.perf_data)
 
 
-@pytest.mark.parametrize('value, error_msg',
-                         [(None, "Invalid value for performance data precision 'None': "
-                                 "int() argument must be"),
-                          ('abc', "Invalid value for performance data precision 'abc': "
-                                  "invalid literal for int() with base 10: 'abc'")])
+@pytest.mark.parametrize('value, error_msg', [
+    pytest.param(
+        None, "Invalid value for performance data precision 'None': int() argument must be",
+        id="no_value"),
+    pytest.param(
+        'abc',
+        "Invalid value for performance data precision 'abc': invalid literal for int() with base 10: 'abc'",
+        id="bad_int"),
+])
 def test_invalid_perf_data_precision(value, error_msg):
     with pytest.raises(Exception) as ex:
         Metric('metric_name', 10.12345, 'B', perf_data_precision=value)
     assert error_msg in str(ex.value)
 
 
-@pytest.mark.parametrize('value, error_msg',
-                         [(None, "Invalid value for summary precision 'None': "
-                                 "int() argument must be a string"),
-                          ('abc', "Invalid value for summary precision 'abc': "
-                                  "invalid literal for int() with base 10: 'abc'")])
+@pytest.mark.parametrize('value, error_msg', [
+    pytest.param(
+        None,
+        "Invalid value for summary precision 'None': int() argument must be a string",
+        id="no_value"),
+    pytest.param(
+        'abc',
+        "Invalid value for summary precision 'abc': invalid literal for int() with base 10: 'abc'",
+        id="bad_int"),
+])
 def test_invalid_summary_precision(value, error_msg):
     with pytest.raises(Exception) as ex:
         Metric('metric_name', 10.12345, 'B', summary_precision=value)

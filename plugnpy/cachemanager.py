@@ -1,11 +1,15 @@
 """
 Cache Manager Client class.
+Copyright (C) 2003-2025 ITRS Group Limited. All rights reserved
 """
 
 import os
 import json
+
 from socket import error as SocketError
+
 from geventhttpclient import HTTPClient
+
 from .exception import ResultError
 from .utils import hash_string
 
@@ -20,6 +24,16 @@ class CacheManagerUtils:  # pylint: disable=too-few-public-methods
     host = os.environ.get('OPSVIEW_CACHE_MANAGER_HOST')
     port = os.environ.get('OPSVIEW_CACHE_MANAGER_PORT')
     namespace = os.environ.get('OPSVIEW_CACHE_MANAGER_NAMESPACE')
+
+    @staticmethod
+    def _initialise_client():
+        """ Initialise the client """
+        if not CacheManagerUtils.client:
+            CacheManagerUtils.client = CacheManagerClient(
+                CacheManagerUtils.host,
+                CacheManagerUtils.port,
+                CacheManagerUtils.namespace,
+            )
 
     @staticmethod
     def generate_key(*args):
@@ -46,12 +60,7 @@ class CacheManagerUtils:  # pylint: disable=too-few-public-methods
         :param data: The data to store.
         :param ttl: The number of seconds data is valid for.
         """
-        if not CacheManagerUtils.client:
-            CacheManagerUtils.client = CacheManagerClient(
-                CacheManagerUtils.host,
-                CacheManagerUtils.port,
-                CacheManagerUtils.namespace
-            )
+        CacheManagerUtils._initialise_client()
         data = json.dumps(data)
         key = hash_string(key)
         return CacheManagerUtils.client.set_data(key, data, ttl)
@@ -75,12 +84,7 @@ class CacheManagerUtils:  # pylint: disable=too-few-public-methods
             data = func(*args, **kwargs)
             return data
 
-        if not CacheManagerUtils.client:
-            CacheManagerUtils.client = CacheManagerClient(
-                CacheManagerUtils.host,
-                CacheManagerUtils.port,
-                CacheManagerUtils.namespace
-            )
+        CacheManagerUtils._initialise_client()
 
         key = hash_string(key)
         try:
@@ -111,14 +115,17 @@ class CacheManagerUtils:  # pylint: disable=too-few-public-methods
         return False
 
 
-class CacheManagerClient:  # pragma: no cover
+class CacheManagerClient:
     """A simple client to contact the cachemanager and set or get cached data"""
 
     HTTP_STATUS_OK_MIN = 200
     HTTP_STATUS_OK_MAX = 299
 
-    def __init__(self, host, port, namespace,  # pylint: disable=too-many-arguments, too-many-positional-arguments
-                 concurrency=1, connection_timeout=30, network_timeout=30):
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
+    def __init__(
+            self, host, port, namespace,
+            concurrency=1, connection_timeout=30, network_timeout=30
+    ):
         """Constructor for Cache Manager Client
 
         :param host: Host IP or name of the cache manager.
@@ -130,7 +137,7 @@ class CacheManagerClient:  # pragma: no cover
         """
         self._namespace = namespace
         self._headers = {'Referer': host, 'Content-Type': 'application/json'}
-        self._client = HTTPClient(
+        self._http_client = HTTPClient(
             host,
             port,
             concurrency=concurrency,
@@ -169,15 +176,15 @@ class CacheManagerClient:  # pragma: no cover
 
     def status(self):
         """Fetches the current status of the cache."""
-        return self._send(self._client.get, 'status')
+        return self._send(self._http_client.get, 'status')
 
     def close(self):
         """Close a client connection"""
-        if self._client:
-            self._client.close()
+        if self._http_client:
+            self._http_client.close()
 
     def _post(self, path, data):
-        return self._send(self._client.post, path, data)
+        return self._send(self._http_client.post, path, data)
 
     def _send(self, method, path, data=None):
         if data:
